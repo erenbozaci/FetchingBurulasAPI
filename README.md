@@ -1,10 +1,11 @@
 ## Fetching Burulaş API
 Using and applying Burulas API in flutter.
-This project has not completed yet. => v0.6
+This project has not completed yet. => v0.7.1
 
 
 ## Installing
 First run `flutter create fetchingburulasapi` and paste files in `lib/` to `fetchingburulasapi/lib`
+Don't forget to add `<uses-permission android:name="android.permission.INTERNET"/>` to `android/app/src/main/AndroidManifest.xml`
 
 #### Packages
 You need these packages: (to add you must use `flutter pub add package_name`.)
