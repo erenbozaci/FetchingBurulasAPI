@@ -1,6 +1,6 @@
-## ProcessingBurulasData
-Using and applying Burulas Data in flutter.
-This project has not completed yet. => v0.5
+## Fetching Burulaş API
+Using and applying Burulas API in flutter.
+This project has not completed yet. => v0.6
 
 
 ## Installing
@@ -15,6 +15,5 @@ You need these packages: (to add you must use `flutter pub add package_name`.)
   - http
   - flutter_map_marker_popup
   - sliding_up_panel
-  - flutter_launcher_icons (optional)
 
 API doesnt mine. All rights reserved by Burulaş.

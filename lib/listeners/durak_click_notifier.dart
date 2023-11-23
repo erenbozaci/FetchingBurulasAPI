@@ -4,8 +4,8 @@ import 'package:fetchingburulasapi/models/durak_data.dart';
 import 'package:flutter/material.dart';
 
 class DurakClickNotifier extends ChangeNotifier {
-  bool _isOpened = false;
-  bool get isOpened => _isOpened;
+  bool _isPanelEnabled = false;
+  bool get isPanelEnabled => _isPanelEnabled;
 
   BusStop? _durak;
   BusStop? get durak => _durak;
@@ -13,8 +13,8 @@ class DurakClickNotifier extends ChangeNotifier {
   List<DurakData> _durakDatas = [];
   List<DurakData> get durakDatas => _durakDatas;
 
-  void setIsOpened(bool isOpened) {
-    _isOpened = isOpened;
+  void setIsOpened(bool isPanelEnabled) {
+    _isPanelEnabled = isPanelEnabled;
     notifyListeners();
   }
 

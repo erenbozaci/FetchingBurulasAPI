@@ -2,7 +2,6 @@ import 'package:fetchingburulasapi/fetch/burulas_api.dart';
 import 'package:fetchingburulasapi/listeners/bus_search_notifier.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
-import 'package:fetchingburulasapi/models/search_route_and_station.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,15 +11,12 @@ class BusSearchComponent extends SearchDelegate {
 
   BusSearchComponent();
 
-  List<SearchRouteAndStation> searchTerms = [];
-
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
           onPressed: () {
             query = "";
-            searchTerms = [];
           },
           icon: const Icon(Icons.clear))
     ];
@@ -30,7 +26,7 @@ class BusSearchComponent extends SearchDelegate {
   Widget? buildLeading(BuildContext context) {
     return IconButton(
         onPressed: () {
-          close(context, null);
+          close(context, query);
         },
         icon: const Icon(Icons.arrow_back));
   }
@@ -52,7 +48,7 @@ class BusSearchComponent extends SearchDelegate {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const OtobusErrorWidget(errorText: "Otobüs veya Durak bulunamadı.");
         } else {
@@ -70,7 +66,7 @@ class BusSearchComponent extends SearchDelegate {
                   title: Text(data.kod),
                   onTap: () {
                     Provider.of<BusSearchNotifier>(context, listen: false).setSearch(data);
-                    close(context, suggestion);
+                    close(context, data);
                   },
                   leading: const Icon(Icons.directions_bus_rounded),
                 );
@@ -81,7 +77,7 @@ class BusSearchComponent extends SearchDelegate {
                   title: Text(data.stationName),
                   onTap: () {
                     Provider.of<BusSearchNotifier>(context, listen: false).setSearch(data);
-                    close(context, suggestion);
+                    close(context, data);
                   },
                   leading: const Icon(Icons.signpost_outlined),
                 );
@@ -93,16 +89,6 @@ class BusSearchComponent extends SearchDelegate {
         }
       },
     );
-  }
-
-  Widget _buildTile(SearchRouteAndStation suggestion) {
-    if(suggestion.type == "R") {
-      return const Icon(Icons.directions_bus_rounded);
-    } else if (suggestion.type == "S") {
-      return const Icon(Icons.signpost_outlined);
-    } else {
-      return Container();
-    }
   }
 
   Future<List<SearchApi>> fetchData(String query) async {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,10 +10,17 @@ typedef AyarlarMap = Map<String, dynamic>;
 class AyarlarStorage {
 
   static AyarlarMap defaultConfig = {
-    "mainLat": 40.20,
-    "mainLong": 29.00,
+    "mainLat": 40.188215,
+    "mainLong": 29.060828,
   };
 
+  static late Ayarlar ayarlar;
+
+  static Future<void> init() async {
+    await getAyarlar().then((data) {
+      ayarlar = data;
+    });
+  }
   static Future<String> get _localPath async {
     var dir = await getApplicationDocumentsDirectory();
     await dir.create(recursive: true);
@@ -36,7 +44,7 @@ class AyarlarStorage {
   }
 
   static Future<File> writeAyarlar(Ayarlar ayarlar) async {
-    final jsonString = jsonEncode(ayarlar);
+    final jsonString = jsonEncode(ayarlar.toJSON());
     final file = await _localFile;
     return await file.writeAsString(jsonString);
   }

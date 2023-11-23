@@ -1,7 +1,7 @@
 name: fetchingburulasapi
 description: Fetching Burulas API.
 publish_to: 'none'
-version: 0.5.0
+version: 0.6.0
 
 environment:
   sdk: '>=3.1.2 <4.0.0'
@@ -17,14 +17,6 @@ dependencies:
   http: ^1.1.0
   flutter_map_marker_popup: ^6.1.2
   sliding_up_panel: ^2.0.0+1
-  flutter_launcher_icons: ^0.13.1
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: assets/icon/logo.png
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: assets/icon/logo_foreground.png
 
 
 dev_dependencies:

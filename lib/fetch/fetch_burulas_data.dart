@@ -3,21 +3,27 @@ import 'dart:convert';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:http/http.dart' as http;
 
+class BurulasDataNotFound implements Exception {}
+class BurulasDataNotLoaded implements Exception {}
+
+
 Future<List<T>> fetchBurulasData<T>(String api, Map<String, dynamic> reqBody, T Function(Map<String, dynamic> data) callback) async {
   final response = await http.post(
       Uri.parse('https://bursakartapi.abys-web.com/$api'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode(reqBody));
 
-  if (response.statusCode == 200) {
-    final parsed = json.decode(response.body)["result"].cast<Map<String, dynamic>>();
+  if (response.statusCode != 200) throw BurulasDataNotLoaded();
 
-    return parsed.map<T>((json) {
-      return callback(json);
-    }).toList();
-  } else {
-    throw Exception('Failed to load');
-  }
+  final burulasJson = json.decode(response.body);
+
+  if (!burulasJson.containsKey('result')) throw BurulasDataNotFound();
+
+  final parsed = burulasJson["result"].cast<Map<String, dynamic>>();
+
+  return parsed.map<T>((json) {
+    return callback(json);
+  }).toList();
 }
 
 Future<List<OtobusGuzergah>> fetchAllBuses() async {

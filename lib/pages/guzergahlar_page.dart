@@ -1,5 +1,6 @@
 import 'package:fetchingburulasapi/fetch/fetch_burulas_data.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
+import 'package:fetchingburulasapi/pages/bus_info_page.dart';
 import 'package:flutter/material.dart';
 
 class GuzergahlarPage extends StatefulWidget {
@@ -74,6 +75,12 @@ class _GuzergahlarPageState extends State<GuzergahlarPage> {
               title: Text(item.hatAdi),
               subtitle: Text(item.guzergahBilgisi),
               leading: const Icon(Icons.directions_bus_rounded),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BusInfoPage(otobus: item)),
+                );
+              },
             );
           },
           separatorBuilder: (BuildContext context, int index) {

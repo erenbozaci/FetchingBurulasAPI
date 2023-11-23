@@ -21,7 +21,7 @@ class MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isOpened = Provider.of<DurakClickNotifier>(context).isOpened;
+    bool isOpened = Provider.of<DurakClickNotifier>(context).isPanelEnabled;
 
     final panelHeightOpen = MediaQuery.of(context).size.height * 0.7;
     final panelHeightClosed = isOpened ? MediaQuery.of(context).size.height * 0.1 : 0.0;

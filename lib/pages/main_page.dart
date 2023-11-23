@@ -10,10 +10,10 @@ class MainPage extends StatefulWidget {
   const MainPage({super.key, required this.title});
 
   @override
-  State<StatefulWidget> createState() => _MainPage();
+  State<StatefulWidget> createState() => MainPageState();
 }
 
-class _MainPage extends State<MainPage> {
+class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
@@ -70,7 +70,6 @@ class _MainPage extends State<MainPage> {
                 ],
               ),
             ),
-            // Footer buttons
             Align(
               alignment: Alignment.bottomCenter,
               child: Column(

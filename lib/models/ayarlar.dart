@@ -8,6 +8,13 @@ class Ayarlar {
     return Ayarlar(mainLat: json["mainLat"], mainLong: json["mainLong"]);
   }
 
+   Map<String, dynamic> toJSON() {
+     return {
+       "mainLat": mainLat,
+       "mainLong": mainLong
+     };
+   }
+
   void setMainLat(double mainLat) {
     this.mainLat = mainLat;
   }

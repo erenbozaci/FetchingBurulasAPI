@@ -4,7 +4,7 @@ import 'package:fetchingburulasapi/fetch/burulas_api.dart';
 import 'package:fetchingburulasapi/listeners/bus_search_notifier.dart';
 import 'package:fetchingburulasapi/listeners/durak_click_notifier.dart';
 import 'package:fetchingburulasapi/models/durak_data.dart';
-import 'package:fetchingburulasapi/models/search_route_and_station.dart';
+import 'package:fetchingburulasapi/models/search/search_otobus.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -53,76 +53,77 @@ class DurakRemainingTimeWidgetState extends State<DurakRemainingTimeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = Provider.of<DurakClickNotifier>(context);
+    return Consumer<DurakClickNotifier>(
+        builder: (ctx, durakClickNotifier, child) {
+      final durak = durakClickNotifier.durak;
+      _durakDatas = durakClickNotifier.durakDatas;
 
-    final durak = notifier.durak;
-    _durakDatas = notifier.durakDatas;
+      if (durak == null) {
+        return const OtobusErrorWidget(errorText: "Durak Bulunamadı!");
+      }
 
-    if (durak == null) return const Text("Durak Bulunamadı.");
-
-    return Expanded(
-        child: Column(
-      children: [
-        Column(
-          children: [
-            Text(
-              durak.stopName,
-              style: const TextStyle(fontSize: 20),
-            ),
-            Text(
-              "Durak Id: ${durak.stopId}",
-              style: const TextStyle(color: Colors.grey),
-            )
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                notifier.setDurak(durak);
-                !widget.panelController.isPanelOpen
-                    ? widget.panelController.open()
-                    : null;
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: const Text(
-                  'Yenile',
+      return Expanded(
+          child: Column(
+        children: [
+          Column(
+            children: [
+              Text(
+                durak.stopName,
+                style: const TextStyle(fontSize: 20),
+              ),
+              Text(
+                "Durak Id: ${durak.stopId}",
+                style: const TextStyle(color: Colors.grey),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  durakClickNotifier.setDurak(durak);
+                  !widget.panelController.isPanelOpen
+                      ? widget.panelController.open()
+                      : null;
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: const Text(
+                    'Yenile',
+                  ),
                 ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                notifier.setIsOpened(false);
-                widget.panelController.isPanelOpen
-                    ? widget.panelController.close()
-                    : null;
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  side: const BorderSide(
-                    color: Colors.red,
-                  )
-              ),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: const Text(
-                  'Kapat',
+              ElevatedButton(
+                onPressed: () {
+                  durakClickNotifier.setIsOpened(false);
+                  widget.panelController.isPanelOpen
+                      ? widget.panelController.close()
+                      : null;
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    side: const BorderSide(
+                      color: Colors.red,
+                    )),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: const Text(
+                    'Kapat',
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        buildListView(durak.stopId.toString())
-      ],
-    ));
+            ],
+          ),
+          buildListView(durak.stopId.toString())
+        ],
+      ));
+    });
   }
 
   Widget buildListView(String durakId) {
-
     return FutureBuilder<List<DurakData>>(
       future: fetchData(durakId),
       builder: (context, snapshot) {
@@ -137,7 +138,8 @@ class DurakRemainingTimeWidgetState extends State<DurakRemainingTimeWidget> {
             _durakDatas = snapshot.data ?? [];
 
             if (_durakDatas.isEmpty) {
-              return const OtobusErrorWidget(errorText: "Bu duraktan geçecek olan otobüs bulunamadı.");
+              return const OtobusErrorWidget(
+                  errorText: "Bu duraktan geçecek olan otobüs bulunamadı.");
             }
 
             return Expanded(
@@ -171,8 +173,7 @@ class DurakRemainingTimeWidgetState extends State<DurakRemainingTimeWidget> {
       ),
       onTap: () {
         Provider.of<BusSearchNotifier>(context, listen: false)
-            .setSearchRouteAndStation(
-                SearchRouteAndStation.getBusFromDurakData(durakData));
+            .setSearch(SearchOtobus.getBusFromDurakData(durakData));
         widget.panelController.close();
       },
     );
