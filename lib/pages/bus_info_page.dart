@@ -49,16 +49,14 @@ class BusInfoPageState extends State<BusInfoPage> {
     return Container(
         padding: const EdgeInsets.all(5.0),
         child: FutureBuilder<BusTimesOfWeek>(
-          future: seperateArrayToWeekdays(
-              direction, widget.otobus.hatId.toString()),
+          future: seperateArrayToWeekdays(direction, widget.otobus.hatId.toString()),
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const OtobusErrorWidget(
-                  errorText: "Otobüs bilgisi bulunamadı.");
+              return const OtobusErrorWidget(errorText: "Otobüs bilgisi bulunamadı.");
             } else {
               return SingleChildScrollView(
                   child: Column(
@@ -104,9 +102,14 @@ class BusInfoPageState extends State<BusInfoPage> {
     String day = days[dt.weekday - 1];
     final a = times[day]?.firstWhere((e) {
       final dur = parseDuration(e.stopTime);
-      return dur.inHours >= dt.hour && (dur.inMinutes % 60) >= dt.minute;
+      if(dur.inHours > (dt.hour + 3)) {
+        return true;
+      } else if (dur.inHours == (dt.hour + 3)) {
+        if((dur.inMinutes % 60) >= dt.minute) return true;
+      }
+      return false;
     });
-    return [day, a?.stopTime ?? "00:00:00"];
+    return [day, a?.stopTime ?? "99:99:99"];
   }
 
   Widget drawArray(BusTimesOfWeek times) {
@@ -142,8 +145,7 @@ class BusInfoPageState extends State<BusInfoPage> {
         crossAxisAlignment: CrossAxisAlignment.start, children: tableColumn);
   }
 
-  Future<BusTimesOfWeek> seperateArrayToWeekdays(
-      String direction, String hatId) async {
+  Future<BusTimesOfWeek> seperateArrayToWeekdays(String direction, String hatId) async {
     try {
       BusTimesOfWeek tempTimes = {};
       final data = await fetchBusTimes(hatId);
@@ -188,7 +190,7 @@ class BusInfoPageState extends State<BusInfoPage> {
   }
 
   String stringifyDuration(Duration duration) {
-    final hour = duration.inMinutes ~/ 60;
+    final hour = duration.inHours;
     final minutes = duration.inMinutes % 60;
     String hr = hour >= 10 ? hour.toString() : "0$hour";
     String mins = minutes >= 10 ? minutes.toString() : "0$minutes";

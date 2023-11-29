@@ -1,6 +1,6 @@
 ## Fetching Burulaş API
 Using and applying Burulas API in flutter.
-This project has not completed yet. => v0.7.1
+This project has not completed yet. => v0.7.2
 
 
 ## Installing

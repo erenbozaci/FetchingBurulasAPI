@@ -132,9 +132,9 @@ class MapComponentState extends State<MapComponent> {
         PolylineLayer(
           polylines: [
             Polyline(
-                points: donusRoute, strokeWidth: 5, color: Colors.blueAccent),
+                points: donusRoute, strokeWidth: 6, color: Colors.blueAccent),
             Polyline(
-                points: gelisRoute, strokeWidth: 5, color: Colors.redAccent)
+                points: gelisRoute, strokeWidth: 6, color: Colors.redAccent)
           ],
         ),
         PopupMarkerLayer(options: PopupMarkerLayerOptions(

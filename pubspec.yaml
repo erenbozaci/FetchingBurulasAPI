@@ -1,7 +1,7 @@
 name: fetchingburulasapi
 description: Fetching Burulas API.
 publish_to: 'none'
-version: 0.7.1
+version: 0.7.2
 
 environment:
   sdk: '>=3.1.2 <4.0.0'
