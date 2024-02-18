@@ -3,14 +3,14 @@ import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/pages/bus_info_page.dart';
 import 'package:flutter/material.dart';
 
-class GuzergahlarPage extends StatefulWidget {
-  const GuzergahlarPage({super.key});
+class PetekAPIPage extends StatefulWidget {
+  const PetekAPIPage({super.key});
 
   @override
-  State<GuzergahlarPage> createState() => _GuzergahlarPageState();
+  State<PetekAPIPage> createState() => PetekAPIPageState();
 }
 
-class _GuzergahlarPageState extends State<GuzergahlarPage> {
+class PetekAPIPageState extends State<PetekAPIPage> {
   List<OtobusGuzergah> items = [];
   List<OtobusGuzergah> filteredItems = [];
 

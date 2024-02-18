@@ -1,6 +1,5 @@
 ## Fetching Burulaş API
-Using and applying Burulas API in flutter.
-This project has not completed yet. => v0.7.2
+Using and applying Burulas API in flutter. v1.0
 
 
 ## Installing
@@ -16,5 +15,7 @@ You need these packages: (to add you must use `flutter pub add package_name`.)
   - http
   - flutter_map_marker_popup
   - sliding_up_panel
+  - contained_tab_bar_view
+  - collection
 
 API doesnt mine. All rights reserved by Burulaş.

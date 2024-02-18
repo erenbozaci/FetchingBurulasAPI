@@ -1,23 +1,22 @@
 import 'dart:async';
 
 import 'package:fetchingburulasapi/fetch/burulas_api.dart';
-import 'package:fetchingburulasapi/listeners/bus_search_notifier.dart';
-import 'package:fetchingburulasapi/listeners/durak_click_notifier.dart';
 import 'package:fetchingburulasapi/models/bus_stop.dart';
 import 'package:fetchingburulasapi/models/buslocation_model.dart';
+import 'package:fetchingburulasapi/models/interfaces/search_data.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_location_marker.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/markers/busstop_marker.dart';
+import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_stop_marker.dart';
 import 'package:fetchingburulasapi/storage/ayarlar_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
 
 class MapComponent extends StatefulWidget {
-  const MapComponent({super.key});
+  final ISearchData searchData;
+  const MapComponent({super.key, required this.searchData});
 
   @override
   State<StatefulWidget> createState() => MapComponentState();
@@ -54,8 +53,7 @@ class MapComponentState extends State<MapComponent> {
     await addBuses(search.kod);
     startFetchingData(search.kod);
 
-    final busRouteData =
-        await BurulasApi.fetchRouteCoordinates(search.hatId.toString());
+    final busRouteData = await BurulasApi.fetchRouteCoordinates(search.hatId.toString());
 
     for (var point in busRouteData) {
       // G = gidis | R = ring | D = donus
@@ -81,11 +79,7 @@ class MapComponentState extends State<MapComponent> {
     BusStop bs = BusStop.fromSearchDurak(durak);
     busStops.add(BusStopMarker(busStop: bs));
 
-    Provider.of<DurakClickNotifier>(context, listen: false).setIsOpened(true);
-    Provider.of<DurakClickNotifier>(context, listen: false).setDurak(bs);
-
-    mapController.fitCamera(
-        CameraFit.coordinates(coordinates: BurulasApi.toLatLng([bs])));
+    mapController.fitCamera(CameraFit.coordinates(coordinates: [bs.toLatLng()]));
   }
 
   void startFetchingData(String kod) {
@@ -107,15 +101,12 @@ class MapComponentState extends State<MapComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BusSearchNotifier>(builder: (ctx, busSearchNotifier, child) {
-      final search = busSearchNotifier.searchData;
+    final search = widget.searchData;
 
-      if (search != null && search is SearchOtobus) populateRoutes(search);
-      if (search != null && search is SearchDurak) populateDurak(search);
+    if (search is SearchOtobus) populateRoutes(search);
+    if (search is SearchDurak) populateDurak(search);
 
-
-      return drawMap();
-    });
+    return drawMap();
   }
 
   Widget drawMap() {

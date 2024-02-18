@@ -1,7 +1,6 @@
 import 'package:fetchingburulasapi/pages/ayarlar_page.dart';
-import 'package:fetchingburulasapi/pages/guzergahlar_page.dart';
-import 'package:fetchingburulasapi/pages/map_page.dart';
-import 'package:fetchingburulasapi/pages/widgets/bus_search_widget.dart';
+import 'package:fetchingburulasapi/pages/burulasapi_page.dart';
+import 'package:fetchingburulasapi/pages/petekapi_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -13,13 +12,45 @@ class MainPage extends StatefulWidget {
   State<StatefulWidget> createState() => MainPageState();
 }
 
+class MenuPage {
+  final String menuItemText;
+  final Widget targetWidget;
+  final Icon? icon;
+
+  int _index = 0;
+
+  MenuPage({required this.menuItemText, required this.targetWidget, this.icon}) {
+    _index = staticIndex;
+    staticIndex++;
+  }
+
+  int getIndex() {
+    return _index;
+  }
+
+  static int staticIndex = 0;
+
+}
+
 class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const MapPage(),
-    const GuzergahlarPage()
+  final List<MenuPage> pages = [
+    MenuPage(menuItemText: "Otobüs ve Güzergahlar - PetekAPI", targetWidget: const PetekAPIPage(), icon: const Icon(Icons.route_rounded)),
+    MenuPage(menuItemText: "Otobüs ve Duraklar - BurulaşAPI", targetWidget: const BurulasAPIPage(), icon: const Icon(Icons.map_rounded))
   ];
+
+  List<Widget> drawPageNavs() {
+    return pages.map((page) => ListTile(
+      title: Text(page.menuItemText),
+      selected: _currentIndex == page.getIndex(),
+      onTap: () {
+        _onItemTapped(page.getIndex());
+        Navigator.pop(context);
+      },
+      leading: page.icon,
+    )).toList();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,42 +63,15 @@ class MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          if (_currentIndex == 0)
-            IconButton(
-                onPressed: () {
-                  showSearch(context: context, delegate: BusSearchComponent());
-                },
-                icon: const Icon(Icons.search_rounded))
-        ],
       ),
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex].targetWidget,
       drawer: Drawer(
         child: Column(
           children: [
             const DrawerHeader(child: null),
             Expanded(
               child: ListView(
-                children: <Widget>[
-                  ListTile(
-                    title: const Text('Harita'),
-                    selected: _currentIndex == 0,
-                    onTap: () {
-                      _onItemTapped(0);
-                      Navigator.pop(context);
-                    },
-                    leading: const Icon(Icons.map_rounded),
-                  ),
-                  ListTile(
-                    title: const Text('Otobüsler ve Güzergahlar'),
-                    selected: _currentIndex == 1,
-                    onTap: () {
-                      _onItemTapped(1);
-                      Navigator.pop(context);
-                    },
-                    leading: const Icon(Icons.route_rounded),
-                  ),
-                ],
+                children: drawPageNavs()
               ),
             ),
             Align(

@@ -13,7 +13,7 @@ class AyarlarPageState extends State<AyarlarPage> {
   late Ayarlar ayarlar;
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
-  bool _isButtonDisabled = false;
+  bool isButtonActive = false;
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class AyarlarPageState extends State<AyarlarPage> {
               ),
               ElevatedButton(
                   onPressed: () {
-                    if(_isButtonDisabled) return;
+                    if(!isButtonActive) return;
 
                     if (_formKey.currentState!.validate()) {
                       setAyarlar().then((value) {

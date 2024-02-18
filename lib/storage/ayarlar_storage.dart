@@ -17,9 +17,7 @@ class AyarlarStorage {
   static late Ayarlar ayarlar;
 
   static Future<void> init() async {
-    await getAyarlar().then((data) {
-      ayarlar = data;
-    });
+    ayarlar = await getAyarlar();
   }
   static Future<String> get _localPath async {
     var dir = await getApplicationDocumentsDirectory();

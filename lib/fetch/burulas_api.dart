@@ -7,19 +7,25 @@ import 'package:fetchingburulasapi/models/route_coordinates.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
 import 'package:latlong2/latlong.dart';
 
-typedef SearchApi = Map<String, dynamic>;
+typedef SearchApiMap = Map<String, dynamic>;
+typedef SearchApiList = List<SearchApiMap>;
+typedef BusLocationList = List<BusLocation>;
+typedef RouteCoordinatesList = List<RouteCoordinates>;
+typedef BusStopList = List<BusStop>;
+typedef DurakDataList = List<DurakData>;
+typedef ScheduleByStopList = List<ScheduleByStop>;
 
 class BurulasApi {
-  static Future<List<SearchApi>> fetchSearch(String search) async {
+  static Future<SearchApiList> fetchSearch(String search) async {
     try {
-      return fetchBurulasData<SearchApi>("api/static/routeandstation",
-          {"keyword": search}, (data) => SearchApi.from(data));
+      return fetchBurulasData<SearchApiMap>("api/static/routeandstation",
+          {"keyword": search}, (data) => SearchApiMap.from(data));
     } catch (e) {
       throw Exception('Failed to load SearchRouteAndStation: $e');
     }
   }
 
-  static Future<List<BusLocation>> fetchGetBusLoc(String routeName) async {
+  static Future<BusLocationList> fetchGetBusLoc(String routeName) async {
     try {
       return fetchBurulasData<BusLocation>("api/static/realtimedata",
           {"keyword": routeName}, (data) => BusLocation.fromJSON(data));
@@ -28,7 +34,7 @@ class BurulasApi {
     }
   }
 
-  static Future<List<RouteCoordinates>> fetchRouteCoordinates(
+  static Future<RouteCoordinatesList> fetchRouteCoordinates(
       String hatId) async {
     try {
       return fetchBurulasData<RouteCoordinates>("api/static/routecoordinate",
@@ -38,7 +44,7 @@ class BurulasApi {
     }
   }
 
-  static Future<List<BusStop>> fetchBusStops(String hatId) async {
+  static Future<BusStopList> fetchBusStops(String hatId) async {
     try {
       return fetchBurulasData<BusStop>("api/static/routestat",
           {"routeCode": int.parse(hatId)}, (data) => BusStop.fromJSON(data));
@@ -47,7 +53,7 @@ class BurulasApi {
     }
   }
 
-  static Future<List<DurakData>> getDurakData(String durakId) async {
+  static Future<DurakDataList> getDurakData(String durakId) async {
     try {
       return fetchBurulasData<DurakData>("api/static/stationremainingtime",
           {"keyword": int.parse(durakId)}, (data) => DurakData.fromJSON(data));
@@ -56,7 +62,7 @@ class BurulasApi {
     }
   }
 
-  static Future<List<ScheduleByStop>> fetchBusTimes(
+  static Future<ScheduleByStopList> fetchBusTimes(
       String direction, String hatId) {
     try {
       return fetchBurulasData<ScheduleByStop>(
@@ -74,7 +80,7 @@ class BurulasApi {
   }
 
   static List<LatLng> toLatLng(List<RouteData> list) {
-    return list.map((data) => LatLng(data.latitude, data.longitude)).toList();
+    return list.map((data) => data.toLatLng()).toList();
   }
 
   static LatLng toLatLngM(String latitude, String longitude) {

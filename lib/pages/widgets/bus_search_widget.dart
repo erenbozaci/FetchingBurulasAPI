@@ -1,15 +1,18 @@
 import 'package:fetchingburulasapi/fetch/burulas_api.dart';
-import 'package:fetchingburulasapi/listeners/bus_search_notifier.dart';
+import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
+import 'package:fetchingburulasapi/pages/bus_info_page.dart';
+import 'package:fetchingburulasapi/pages/durak_info_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'components/errors/otobus_error_widget.dart';
 
 class BusSearchComponent extends SearchDelegate {
-
   BusSearchComponent();
+
+  @override
+  String? get searchFieldLabel => "Ara";
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -42,7 +45,7 @@ class BusSearchComponent extends SearchDelegate {
       return const Center(child: Text("Bişeyler Araman Lazım"));
     }
 
-    return FutureBuilder<List<SearchApi>>(
+    return FutureBuilder<List<SearchApiMap>>(
       future: fetchData(query),
       builder: (ctx, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -62,11 +65,23 @@ class BusSearchComponent extends SearchDelegate {
 
               if(suggestion["type"] == "R") {
                 SearchOtobus data = SearchOtobus.fromJSON(suggestion);
+
                 return ListTile(
                   title: Text(data.kod),
-                  onTap: () {
-                    Provider.of<BusSearchNotifier>(context, listen: false).setSearch(data);
-                    close(context, data);
+                  onTap: () async {
+                    final busStops = (await BurulasApi.fetchBusStops(data.hatId.toString())).where((e) =>(e.routeDirection == "G" || e.routeDirection == "R")).toList();
+
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => BusInfoPage(
+                            otobus: OtobusGuzergah(
+                                hatId: data.hatId,
+                                hatAdi: data.kod,
+                                guzergahBaslangic: busStops[0].stopName,
+                                guzergahBitis: busStops[busStops.length - 1].stopName,
+                                guzergahBilgisi: busStops.map((e) => e.stopName).join(" - ")
+                            )
+                        ))
+                    );
                   },
                   leading: const Icon(Icons.directions_bus_rounded),
                 );
@@ -76,8 +91,7 @@ class BusSearchComponent extends SearchDelegate {
                 return ListTile(
                   title: Text(data.stationName),
                   onTap: () {
-                    Provider.of<BusSearchNotifier>(context, listen: false).setSearch(data);
-                    close(context, data);
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => DurakInfoPage(durak: data)));
                   },
                   leading: const Icon(Icons.signpost_outlined),
                 );
@@ -91,7 +105,7 @@ class BusSearchComponent extends SearchDelegate {
     );
   }
 
-  Future<List<SearchApi>> fetchData(String query) async {
+  Future<List<SearchApiMap>> fetchData(String query) async {
     return BurulasApi.fetchSearch(query);
   }
 }
