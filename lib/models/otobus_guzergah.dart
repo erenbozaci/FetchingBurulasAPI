@@ -1,3 +1,8 @@
+class OtobusCode {
+  String code;
+  OtobusCode({required this.code});
+}
+
 class OtobusGuzergah {
   final int hatId;
   final String hatAdi;
@@ -15,7 +20,7 @@ class OtobusGuzergah {
 
   factory OtobusGuzergah.fromJson(Map<String, dynamic> json) {
     return OtobusGuzergah(
-      hatId: (json['HatId'] as double).toInt(),
+      hatId: json['id'] as int,
       hatAdi: json['HatAdi'] as String,
       guzergahBaslangic: json["GuzergahBaslangic"],
       guzergahBitis: json["GuzergahBitis"],

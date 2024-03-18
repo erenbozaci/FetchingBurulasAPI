@@ -36,7 +36,7 @@ class MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
   final List<MenuPage> pages = [
-    MenuPage(menuItemText: "Otobüs ve Güzergahlar - PetekAPI", targetWidget: const PetekAPIPage(), icon: const Icon(Icons.route_rounded)),
+    //MenuPage(menuItemText: "Otobüs ve Güzergahlar - PetekAPI", targetWidget: const PetekAPIPage(), icon: const Icon(Icons.route_rounded)),
     MenuPage(menuItemText: "Otobüs ve Duraklar - BurulaşAPI", targetWidget: const BurulasAPIPage(), icon: const Icon(Icons.map_rounded))
   ];
 

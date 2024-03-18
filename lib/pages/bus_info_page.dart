@@ -1,7 +1,6 @@
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:fetchingburulasapi/classes/time_group.dart';
 import 'package:fetchingburulasapi/fetch/burulas_api.dart';
-import 'package:fetchingburulasapi/models/interfaces/search_data.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
@@ -27,7 +26,8 @@ class BusInfoPage extends StatefulWidget {
   State<BusInfoPage> createState() => BusInfoPageState();
 }
 
-class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderStateMixin {
+class BusInfoPageState extends State<BusInfoPage>
+    with SingleTickerProviderStateMixin {
   late TimeGroup timeGroup;
 
   List<String> days = ["Pzt", "Sal", "Çrş", "Prş", "Cum", "Cmt", "Pzr"];
@@ -76,36 +76,95 @@ class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    final otobusS = widget.otobus;
+
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.otobus.hatAdi),
+          title: Text(otobusS.hatAdi),
         ),
         body: Column(children: [
-          OutlinedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MapPage(
-                          title: widget.otobus.hatAdi,
-                          searchData: SearchOtobus(
-                              type: SearchType.OTOBUS,
-                              kod: widget.otobus.hatAdi
-                                  .replaceAll(RegExp(r"[\-/]+"), ""),
-                              aciklama: widget.otobus.hatAdi
-                                  .replaceAll(RegExp(r"[\-/]+"), ""),
-                              hatId: widget.otobus.hatId))),
-                );
-              },
-              icon: const Icon(Icons.map),
-              label: const Text("Harita")),
-          drawHatDegistir(),
-          Text("*Resmi tatil günleri, Pazar sefer saatleri ile aynıdır.", style: TextStyle(color: Theme.of(context).dividerColor),),
-          drawPage()
+          drawHaritaButton(otobusS),
+          drawPrices(otobusS.hatAdi),
+          drawHatSaatHeader(),
+          drawTimes()
         ]));
   }
 
-  Widget drawPage() {
+  Widget drawHaritaButton(OtobusGuzergah otobus) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MapPage(
+                            title: otobus.hatAdi,
+                            searchData: SearchOtobus.getBusFromOtobusGuzergah(otobus))),
+                  );
+                },
+                icon: const Icon(Icons.map),
+                label: const Text("Harita", style: TextStyle(fontSize: 18.0),)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget drawHatSaatHeader() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          drawHatDegistir(),
+          Text(
+            "*Resmi tatil günleri, Pazar sefer saatleri ile aynıdır.",
+            style: TextStyle(color: Theme.of(context).dividerColor),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget drawPrices(String hatAdi) {
+    return FutureBuilder<RoutePriceList>(
+      future: BurulasApi.fetchRoutePrice(hatAdi),
+      builder: (ctx, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const OtobusErrorWidget(
+              errorText: "Ücret bilgisi bulunamadı.");
+        } else {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: snapshot.data!.map((e) => Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                        decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            color: Colors.black),
+                        child: Column(children: [
+                          Text(e.cardType),
+                          Text("${e.price.toStringAsFixed(2)}₺")
+                        ]),
+                      ))
+                  .toList(),
+            ),
+          );
+        }
+      }, //s
+    );
+  }
+
+  Widget drawTimes() {
     return FutureBuilder<BusTimesOfWeek>(
       future:
           seperateArrayToWeekdays(direction, widget.otobus.hatId.toString()),
@@ -161,27 +220,27 @@ class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderState
         final timeListWidget = Row(children: timeItemListWidgets);
 
         final hourRow = Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(5.0),
-                child: Text(hour >= 10 ? hour.toString() : "0$hour",
-                    style: const TextStyle(fontSize: 20,)),
-              ),
-              Expanded(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Container(
-                        margin: const EdgeInsets.all(2.5),
-                        padding: const EdgeInsets.all(4.0),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(9.0)),
-                          color: Colors.black,
-                        ),
-                        child: timeListWidget,
-                      )
-                  )
-              )
-            ],
+          children: [
+            Container(
+              padding: const EdgeInsets.all(5.0),
+              child: Text(hour >= 10 ? hour.toString() : "0$hour",
+                  style: const TextStyle(
+                    fontSize: 20,
+                  )),
+            ),
+            Expanded(
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      margin: const EdgeInsets.all(2.5),
+                      padding: const EdgeInsets.all(4.0),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(9.0)),
+                        color: Colors.black,
+                      ),
+                      child: timeListWidget,
+                    )))
+          ],
         );
 
         hours.add(Container(
@@ -192,20 +251,21 @@ class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderState
       timesWidget.add(Container(
           margin: const EdgeInsets.symmetric(vertical: 5.0),
           decoration: BoxDecoration(
-              border: Border.symmetric(vertical: BorderSide(width: 0.5, color: Theme.of(context).focusColor))
-          ),
-          child: ListView(children: hours))
-      );
+              border: Border.symmetric(
+                  vertical: BorderSide(
+                      width: 0.5, color: Theme.of(context).focusColor))),
+          child: ListView(children: hours)));
     }
     return timesWidget;
   }
 
   Widget drawHatDegistir() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: Row(
         children: [
-          Flexible(child: Text("KALKIŞ: ${(direction == "R" || direction == "G") ? widget.otobus.guzergahBaslangic : widget.otobus.guzergahBitis}")),
+          Flexible(
+              child: Text(
+                  "KALKIŞ: ${(direction == "R" || direction == "G") ? widget.otobus.guzergahBaslangic : widget.otobus.guzergahBitis}")),
           IconButton(
               onPressed: () {
                 const snackBar = SnackBar(

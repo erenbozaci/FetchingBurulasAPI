@@ -4,6 +4,7 @@ import 'package:fetchingburulasapi/models/buslocation_model.dart';
 import 'package:fetchingburulasapi/models/bus_stop.dart';
 import 'package:fetchingburulasapi/models/durak_data.dart';
 import 'package:fetchingburulasapi/models/route_coordinates.dart';
+import 'package:fetchingburulasapi/models/route_price.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -14,6 +15,7 @@ typedef RouteCoordinatesList = List<RouteCoordinates>;
 typedef BusStopList = List<BusStop>;
 typedef DurakDataList = List<DurakData>;
 typedef ScheduleByStopList = List<ScheduleByStop>;
+typedef RoutePriceList = List<RoutePrice>;
 
 class BurulasApi {
   static Future<SearchApiList> fetchSearch(String search) async {
@@ -76,6 +78,14 @@ class BurulasApi {
           (data) => ScheduleByStop.fromJSON(data));
     } catch (e) {
       throw Exception('Failed to load ScheduleByStop: $e');
+    }
+  }
+
+  static Future<RoutePriceList> fetchRoutePrice(String routeName) async {
+    try {
+      return fetchBurulasData<RoutePrice>("api/static/routeprice", {"keyword": routeName}, (data) => RoutePrice.fromJSON(data));
+    } catch (e) {
+      throw Exception('Failed to load BusLocation: $e');
     }
   }
 

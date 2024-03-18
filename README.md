@@ -1,5 +1,5 @@
 ## Fetching Burulaş API
-Using and applying Burulas API in flutter. v1.0
+Using and applying Burulas API in flutter. v1.1
 
 
 ## Installing
@@ -17,5 +17,10 @@ You need these packages: (to add you must use `flutter pub add package_name`.)
   - sliding_up_panel
   - contained_tab_bar_view
   - collection
+#### Screenshots
+![Ana Sayfa](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/d2dd83ae-9d39-489d-9090-ebbdfeea596a)
+![Otobüs Bilgi](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/9e0fb11f-8fd2-4b04-91ce-32d4885d070f)
+![Harita](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/3b1c7b13-752b-42df-9e77-c0376b259eb9)
+![Durak Bilgi](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/e34f339d-2c84-4ed4-9dec-dd17dc915f50)
 
 API doesnt mine. All rights reserved by Burulaş.

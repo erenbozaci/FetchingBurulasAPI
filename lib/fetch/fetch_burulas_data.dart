@@ -32,6 +32,6 @@ Future<List<OtobusGuzergah>> fetchAllBuses() async {
     final parsed = json.decode(r.body).cast<Map<String, dynamic>>();
     return parsed.map<OtobusGuzergah>((json) => OtobusGuzergah.fromJson(json)).toList();
   } else {
-    throw Exception('Failed to load');
+    throw BurulasDataNotLoaded();
   }
 }
