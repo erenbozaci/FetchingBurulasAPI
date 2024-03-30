@@ -9,6 +9,7 @@ class BurulasAPIPage extends StatelessWidget {
     return Column(
       children: [
         Flexible(
+          flex: 0,
           child: Container(
               margin: const EdgeInsets.all(5.0),
               alignment: Alignment.topCenter,
@@ -34,7 +35,7 @@ class BurulasAPIPage extends StatelessWidget {
                   ),
                 ),
               )),
-        )
+        ),
       ],
     );
   }

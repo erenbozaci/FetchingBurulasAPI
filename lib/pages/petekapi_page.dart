@@ -1,6 +1,6 @@
 import 'package:fetchingburulasapi/fetch/fetch_burulas_data.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
-import 'package:fetchingburulasapi/pages/bus_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/bus_info_page.dart';
 import 'package:flutter/material.dart';
 
 class PetekAPIPage extends StatefulWidget {

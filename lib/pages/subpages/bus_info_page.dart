@@ -4,7 +4,7 @@ import 'package:fetchingburulasapi/fetch/burulas_api.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
-import 'package:fetchingburulasapi/pages/map_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/map_page.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -83,10 +83,10 @@ class BusInfoPageState extends State<BusInfoPage>
           title: Text(otobusS.hatAdi),
         ),
         body: Column(children: [
-          drawHaritaButton(otobusS),
           drawPrices(otobusS.hatAdi),
+          drawHaritaButton(otobusS),
           drawHatSaatHeader(),
-          drawTimes()
+          drawTimes(),
         ]));
   }
 
@@ -260,30 +260,28 @@ class BusInfoPageState extends State<BusInfoPage>
   }
 
   Widget drawHatDegistir() {
-    return Container(
-      child: Row(
-        children: [
-          Flexible(
-              child: Text(
-                  "KALKIŞ: ${(direction == "R" || direction == "G") ? widget.otobus.guzergahBaslangic : widget.otobus.guzergahBitis}")),
-          IconButton(
-              onPressed: () {
-                const snackBar = SnackBar(
-                  content: Text(
-                      "Bu hat bir ring hattıdır. Bu nedenle değiştirme yapılamaz!"),
-                );
-                if (direction != "R" && direction == "G") {
-                  setDirection("D");
-                } else if (direction != "R" && direction == "D") {
-                  setDirection("G");
-                } else if (direction == "R") {
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  return;
-                }
-              },
-              icon: const Icon(Icons.change_circle_outlined)),
-        ],
-      ),
+    return Row(
+      children: [
+        Flexible(
+            child: Text(
+                "KALKIŞ: ${(direction == "R" || direction == "G") ? widget.otobus.guzergahBaslangic : widget.otobus.guzergahBitis}")),
+        IconButton(
+            onPressed: () {
+              const snackBar = SnackBar(
+                content: Text(
+                    "Bu hat bir ring hattıdır. Bu nedenle değiştirme yapılamaz!"),
+              );
+              if (direction != "R" && direction == "G") {
+                setDirection("D");
+              } else if (direction != "R" && direction == "D") {
+                setDirection("G");
+              } else if (direction == "R") {
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                return;
+              }
+            },
+            icon: const Icon(Icons.change_circle_outlined)),
+      ],
     );
   }
 

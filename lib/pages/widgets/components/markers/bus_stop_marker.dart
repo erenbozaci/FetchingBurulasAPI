@@ -1,7 +1,7 @@
 import 'package:fetchingburulasapi/models/bus_stop.dart';
 import 'package:fetchingburulasapi/models/interfaces/search_data.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
-import 'package:fetchingburulasapi/pages/durak_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/durak_info_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

@@ -1,6 +1,5 @@
 import 'package:fetchingburulasapi/pages/ayarlar_page.dart';
 import 'package:fetchingburulasapi/pages/burulasapi_page.dart';
-import 'package:fetchingburulasapi/pages/petekapi_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {

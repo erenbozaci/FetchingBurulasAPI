@@ -2,8 +2,8 @@ import 'package:fetchingburulasapi/fetch/burulas_api.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
-import 'package:fetchingburulasapi/pages/bus_info_page.dart';
-import 'package:fetchingburulasapi/pages/durak_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/bus_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/durak_info_page.dart';
 import 'package:flutter/material.dart';
 
 import 'components/errors/otobus_error_widget.dart';

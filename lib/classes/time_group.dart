@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:fetchingburulasapi/pages/bus_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/bus_info_page.dart';
 import 'package:collection/collection.dart';
 
 typedef HourGroupedTimeItems = Map<String, Map<int, List<TimeItem>>>;
