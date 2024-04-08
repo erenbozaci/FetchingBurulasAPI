@@ -8,7 +8,7 @@ import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_location_marker.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_stop_marker.dart';
-import 'package:fetchingburulasapi/storage/ayarlar_storage.dart';
+import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
@@ -32,6 +32,11 @@ class MapComponentState extends State<MapComponent> {
   final List<Marker> buses = [];
 
   Timer? _busTimer;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -83,7 +88,7 @@ class MapComponentState extends State<MapComponent> {
   }
 
   void startFetchingData(String kod) {
-    _busTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+    _busTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       addBuses(kod).then((data) {
         if(data.isEmpty) timer.cancel();
       });
@@ -110,10 +115,11 @@ class MapComponentState extends State<MapComponent> {
   }
 
   Widget drawMap() {
+
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
-          initialCenter: LatLng(AyarlarStorage.ayarlar.mainLat, AyarlarStorage.ayarlar.mainLong),
+          initialCenter: BurulasApi.toLatLngM(HaritaAyarlar.haritaAyarlari!["mainLat"], HaritaAyarlar.haritaAyarlari!["mainLong"]),
           initialZoom: 12.0,
           maxZoom: 18.0),
       children: [

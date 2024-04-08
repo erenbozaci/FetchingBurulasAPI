@@ -1,5 +1,4 @@
-import 'package:fetchingburulasapi/models/ayarlar.dart';
-import 'package:fetchingburulasapi/storage/ayarlar_storage.dart';
+import 'package:fetchingburulasapi/pages/subpages/about_settings/map_options_page.dart';
 import 'package:flutter/material.dart';
 
 class AyarlarPage extends StatefulWidget {
@@ -10,35 +9,7 @@ class AyarlarPage extends StatefulWidget {
 }
 
 class AyarlarPageState extends State<AyarlarPage> {
-  late Ayarlar ayarlar;
-  final _formKey = GlobalKey<FormState>();
-  bool loading = false;
-  bool isButtonActive = false;
 
-  @override
-  void initState() {
-    super.initState();
-    ayarlar = AyarlarStorage.ayarlar;
-  }
-
-  Future<void> setAyarlar() async {
-    await AyarlarStorage.writeAyarlar(ayarlar);
-  }
-
-  String? coordsControl(value) {
-      if (value == null || value.isEmpty) {
-        return 'Boş Bırakmayınız!';
-      } else if (double.tryParse(value) == null) {
-        return 'Lütfen Double değeri giriniz';
-      }
-      return null;
-  }
-
-  void showSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        content: const Text("Başarıyla Kaydedildi!", style: TextStyle(color: Colors.white),)));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,49 +19,37 @@ class AyarlarPageState extends State<AyarlarPage> {
       ),
       body: Container(
         padding: const EdgeInsets.all(10.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
+        child: Column(
             children: [
-              const Text("Harita Ayarları", style: TextStyle(fontSize: 25),),
-              const Divider(),
-              TextFormField(
-                initialValue: ayarlar.mainLat.toString(),
-                maxLength: 20,
-                validator: coordsControl,
-                decoration: const InputDecoration(
-                    labelText: 'Latitude', contentPadding: EdgeInsets.all(5.0)),
-                onChanged: (value) {
-                  ayarlar.setMainLat(double.parse(value));
+              drawSettingsButton(
+                title: "Harita Ayarları",
+                subTitle: "Latitude, Longitude",
+                leading: const Icon(Icons.map_rounded),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MapOptionsPage()));
                 },
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                initialValue: ayarlar.mainLong.toString(),
-                maxLength: 20,
-                validator: coordsControl,
-                decoration: const InputDecoration(
-                    labelText: 'Longitude',
-                    contentPadding: EdgeInsets.all(5.0)),
-                onChanged: (value) {
-                  ayarlar.setMainLong(double.parse(value));
-                },
-                keyboardType: TextInputType.number,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    if(!isButtonActive) return;
-
-                    if (_formKey.currentState!.validate()) {
-                      setAyarlar().then((value) {
-                        showSnackbar(context);
-                      });
-                    }
-                  },
-                  child: const Text("Kaydet"))
+              )
             ],
           ),
-        ),
+        )
+    );
+  }
+
+  Widget drawSettingsButton({
+    required String title,
+    required String subTitle,
+    required void Function() onTap,
+    required Icon leading
+}) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subTitle),
+      onTap: onTap,
+      leading: leading,
+      trailing: const Icon(Icons.chevron_right),
+      tileColor: Colors.black,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.0), // if you need this
       ),
     );
   }

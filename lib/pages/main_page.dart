@@ -1,5 +1,6 @@
 import 'package:fetchingburulasapi/pages/ayarlar_page.dart';
 import 'package:fetchingburulasapi/pages/burulasapi_page.dart';
+import 'package:fetchingburulasapi/pages/favorites_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -36,7 +37,16 @@ class MainPageState extends State<MainPage> {
 
   final List<MenuPage> pages = [
     //MenuPage(menuItemText: "Otobüs ve Güzergahlar - PetekAPI", targetWidget: const PetekAPIPage(), icon: const Icon(Icons.route_rounded)),
-    MenuPage(menuItemText: "Otobüs ve Duraklar - BurulaşAPI", targetWidget: const BurulasAPIPage(), icon: const Icon(Icons.map_rounded))
+    MenuPage(
+        menuItemText: "Otobüs ve Duraklar - BurulaşAPI",
+        targetWidget: const BurulasAPIPage(),
+        icon: const Icon(Icons.map_rounded)
+    ),
+    MenuPage(
+        menuItemText: "Favoriler",
+        targetWidget: const FavoritesPage(),
+        icon: const Icon(Icons.star_border_rounded)
+    )
   ];
 
   List<Widget> drawPageNavs() {
@@ -44,14 +54,14 @@ class MainPageState extends State<MainPage> {
       title: Text(page.menuItemText),
       selected: _currentIndex == page.getIndex(),
       onTap: () {
-        _onItemTapped(page.getIndex());
+        onItemTapped(page.getIndex());
         Navigator.pop(context);
       },
       leading: page.icon,
     )).toList();
   }
 
-  void _onItemTapped(int index) {
+  void onItemTapped(int index) {
     setState(() {
       _currentIndex = index;
     });

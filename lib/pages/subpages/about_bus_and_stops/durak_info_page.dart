@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:fetchingburulasapi/classes/duration_plus.dart';
 import 'package:fetchingburulasapi/fetch/burulas_api.dart';
+import 'package:fetchingburulasapi/models/durak_data.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
 import 'package:flutter/material.dart';
-
-import '../../models/durak_data.dart';
 
 class DurakInfoPage extends StatefulWidget {
   final SearchDurak durak;

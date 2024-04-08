@@ -4,8 +4,11 @@ import 'package:fetchingburulasapi/fetch/burulas_api.dart';
 import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
 import 'package:fetchingburulasapi/models/search/search_otobus.dart';
-import 'package:fetchingburulasapi/pages/subpages/map_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/map_page.dart';
 import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
+import 'package:fetchingburulasapi/pages/widgets/components/future_builder_modified.dart';
+import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
+import 'package:fetchingburulasapi/storage/favorites_db.dart';
 import 'package:flutter/material.dart';
 
 typedef BusTimesOfWeek = Map<String, List<ScheduleByStop>>;
@@ -19,15 +22,15 @@ class NearestTime {
 
 class BusInfoPage extends StatefulWidget {
   final OtobusGuzergah otobus;
+  final bool isFavorite;
 
-  const BusInfoPage({super.key, required this.otobus});
+  const BusInfoPage({super.key, required this.otobus, this.isFavorite = false});
 
   @override
   State<BusInfoPage> createState() => BusInfoPageState();
 }
 
-class BusInfoPageState extends State<BusInfoPage>
-    with SingleTickerProviderStateMixin {
+class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderStateMixin {
   late TimeGroup timeGroup;
 
   List<String> days = ["Pzt", "Sal", "Çrş", "Prş", "Cum", "Cmt", "Pzr"];
@@ -35,8 +38,11 @@ class BusInfoPageState extends State<BusInfoPage>
   List<String> directions = ["G", "D"];
   String direction = "G";
 
+  bool isFavorite = false;
+
   @override
   void initState() {
+    isFavorite = widget.isFavorite;
     getDirection();
     super.initState();
   }
@@ -77,10 +83,21 @@ class BusInfoPageState extends State<BusInfoPage>
   @override
   Widget build(BuildContext context) {
     final otobusS = widget.otobus;
+    HaritaAyarlar.init();
 
     return Scaffold(
         appBar: AppBar(
           title: Text(otobusS.hatAdi),
+          actions: [
+            IconButton(onPressed: () async {
+              final favDB = FavoritesDB();
+              isFavorite ? await favDB.deleteFavorite(otobusS) : await favDB.addFavorite(otobusS);
+
+              setState(() {
+                isFavorite = !isFavorite;
+              });
+            }, icon: isFavorite ? const Icon(Icons.star_rounded) : const Icon(Icons.star_outline_rounded))
+          ],
         ),
         body: Column(children: [
           drawPrices(otobusS.hatAdi),
@@ -131,37 +148,26 @@ class BusInfoPageState extends State<BusInfoPage>
   }
 
   Widget drawPrices(String hatAdi) {
-    return FutureBuilder<RoutePriceList>(
-      future: BurulasApi.fetchRoutePrice(hatAdi),
-      builder: (ctx, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const OtobusErrorWidget(
-              errorText: "Ücret bilgisi bulunamadı.");
-        } else {
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: snapshot.data!.map((e) => Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                            color: Colors.black),
-                        child: Column(children: [
-                          Text(e.cardType),
-                          Text("${e.price.toStringAsFixed(2)}₺")
-                        ]),
-                      ))
-                  .toList(),
-            ),
-          );
-        }
-      }, //s
-    );
+    return FutureBuilderModified<RoutePriceList>
+      (future: BurulasApi.fetchRoutePrice(hatAdi), errorTxt: "Ücret bilgisi bulunamadı.", outputFunc: (data) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 5.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: data!.map((e) => Container(
+              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  color: Colors.black),
+              child: Column(children: [
+                Text(e.cardType),
+                Text("${e.price.toStringAsFixed(2)}₺")
+              ]),
+            ))
+                .toList(),
+          ),
+        );
+    });
   }
 
   Widget drawTimes() {

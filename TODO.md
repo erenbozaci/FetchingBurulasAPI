@@ -1,6 +1,4 @@
 - Customizable User Themes
-- Settings Page
-- Favorite Buses 
 - Favorite Bus Stops
 - Find Routes
 - Bus Popups

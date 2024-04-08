@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class OtobusErrorWidget extends StatelessWidget {
   final String errorText;
+  final Color color;
 
-  const OtobusErrorWidget({super.key, required this.errorText});
+  const OtobusErrorWidget({super.key, required this.errorText, this.color = Colors.redAccent});
 
 
   @override

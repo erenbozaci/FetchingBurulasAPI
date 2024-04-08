@@ -1,12 +1,9 @@
 import 'package:fetchingburulasapi/pages/main_page.dart';
-import 'package:fetchingburulasapi/storage/ayarlar_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await AyarlarStorage.init();
 
   runApp(const FetchingBurulasApi());
 }
