@@ -1,7 +1,7 @@
 import 'package:fetchingburulasapi/models/bus_stop.dart';
 import 'package:fetchingburulasapi/models/interfaces/search_data.dart';
 import 'package:fetchingburulasapi/models/search/search_durak.dart';
-import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/durak_info_page.dart';
+import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/bus_stop_info_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -50,7 +50,7 @@ class BusStopMarkerPopup extends StatelessWidget {
                 subtitle: Text(busStop.stopId.toString()),
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DurakInfoPage(
+                      builder: (context) => BusStopInfoPage(
                           durak: SearchDurak(
                               type: SearchType.DURAK,
                               stationId: busStop.stopId,

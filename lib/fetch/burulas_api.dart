@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:fetchingburulasapi/fetch/fetch_burulas_data.dart';
 import 'package:fetchingburulasapi/models/abstracts/route_data.dart';
-import 'package:fetchingburulasapi/models/buslocation_model.dart';
+import 'package:fetchingburulasapi/models/bus_location.dart';
 import 'package:fetchingburulasapi/models/bus_stop.dart';
-import 'package:fetchingburulasapi/models/durak_data.dart';
+import 'package:fetchingburulasapi/models/bus_stop_data.dart';
 import 'package:fetchingburulasapi/models/route_coordinates.dart';
 import 'package:fetchingburulasapi/models/route_price.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
@@ -13,7 +15,7 @@ typedef SearchApiList = List<SearchApiMap>;
 typedef BusLocationList = List<BusLocation>;
 typedef RouteCoordinatesList = List<RouteCoordinates>;
 typedef BusStopList = List<BusStop>;
-typedef DurakDataList = List<DurakData>;
+typedef BusStopDataList = List<BusStopData>;
 typedef ScheduleByStopList = List<ScheduleByStop>;
 typedef RoutePriceList = List<RoutePrice>;
 
@@ -55,12 +57,14 @@ class BurulasApi {
     }
   }
 
-  static Future<DurakDataList> getDurakData(String durakId) async {
+  static Future<BusStopDataList> getBusStopData(String durakId) async {
     try {
-      return fetchBurulasData<DurakData>("api/static/stationremainingtime",
-          {"keyword": int.parse(durakId)}, (data) => DurakData.fromJSON(data));
+      return fetchBurulasData<BusStopData>(
+          "api/static/stationremainingtime",
+          {"keyword": int.parse(durakId)},
+          (data) => BusStopData.fromJSON(data));
     } catch (e) {
-      throw Exception('Failed to load DurakData: $e');
+      throw Exception('Failed to load BusStopData: $e');
     }
   }
 
@@ -83,7 +87,8 @@ class BurulasApi {
 
   static Future<RoutePriceList> fetchRoutePrice(String routeName) async {
     try {
-      return fetchBurulasData<RoutePrice>("api/static/routeprice", {"keyword": routeName}, (data) => RoutePrice.fromJSON(data));
+      return fetchBurulasData<RoutePrice>("api/static/routeprice",
+          {"keyword": routeName}, (data) => RoutePrice.fromJSON(data));
     } catch (e) {
       throw Exception('Failed to load BusLocation: $e');
     }
@@ -96,5 +101,18 @@ class BurulasApi {
   static LatLng toLatLngM(String latitude, String longitude) {
     return LatLng(
         double.tryParse(latitude) ?? 0.0, double.tryParse(longitude) ?? 0.0);
+  }
+}
+
+extension PeriodicTimer on Timer {
+  Timer periodicTimer(Duration duration, void Function(Timer timer) callback,
+      {bool onStart = false}) {
+    var result = Timer.periodic(duration, callback);
+    if (onStart) {
+      Timer(Duration.zero, () {
+        if (result.isActive) callback(result);
+      });
+    }
+    return result;
   }
 }

@@ -34,7 +34,7 @@ class TimeItem {
 class TimeGroup {
 
   final BusTimesOfWeek times;
-  List<String> days = ["Pzt", "Sal", "Çrş", "Prş", "Cum", "Cmt", "Pzr"];
+  static final List<String> days = ["Pzt", "Sal", "Çrş", "Prş", "Cum", "Cmt", "Pzr"];
 
   TimeGroup({required this.times});
 
@@ -48,21 +48,20 @@ class TimeGroup {
       final timeItems = times[day]?.map((e) {
         final ti = toTimeItem(e.stopTime);
         if((dt.weekday - 1) == days.indexOf(day) && !gived) {
-          if (ti.hour > dt.hour) {
-            ti.setIsNearest(true);
-            gived = true;
-          } else if (ti.hour == dt.hour) {
+          if (ti.hour == dt.hour) {
             if (ti.minutes >= dt.minute) {
               ti.setIsNearest(true);
               gived = true;
             }
+          } else if (ti.hour > dt.hour) {
+            ti.setIsNearest(true);
+            gived = true;
           }
-        }
+      }
 
         return ti;
       }) ?? [];
-      final s = groupBy(timeItems, (timeItem) => timeItem.hour);
-      t[day] = s;
+      t[day] = groupBy(timeItems, (timeItem) => timeItem.hour);
     }
     return t;
   }

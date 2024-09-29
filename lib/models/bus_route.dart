@@ -1,18 +1,18 @@
 import 'package:fetchingburulasapi/storage/favorites_db.dart';
 
-class OtobusCode {
+class BusCode {
   String code;
-  OtobusCode({required this.code});
+  BusCode({required this.code});
 }
 
-class OtobusGuzergah {
+class BusRoute {
   final int hatId;
   final String hatAdi;
   final String guzergahBaslangic;
   final String guzergahBitis;
   final String guzergahBilgisi;
 
-  OtobusGuzergah ({
+  BusRoute ({
     required this.hatId,
     required this.hatAdi,
     required this.guzergahBaslangic,
@@ -20,8 +20,8 @@ class OtobusGuzergah {
     required this.guzergahBilgisi
   });
 
-  factory OtobusGuzergah.fromJson(Map<String, dynamic> json) {
-    return OtobusGuzergah(
+  factory BusRoute.fromJson(Map<String, dynamic> json) {
+    return BusRoute(
       hatId: int.parse(json['id']),
       hatAdi: json['HatAdi'] as String,
       guzergahBaslangic: json["GuzergahBaslangic"] as String,
@@ -30,13 +30,23 @@ class OtobusGuzergah {
     );
   }
 
-  factory OtobusGuzergah.fromFavBus(FavoriteBus favBus) {
-    return OtobusGuzergah(
+  factory BusRoute.fromFavBus(FavoriteBus favBus) {
+    return BusRoute(
       hatId: int.parse(favBus['hatId'].toString()),
       hatAdi: favBus['hatAdi'] as String,
       guzergahBaslangic: favBus["guzergahBaslangic"] as String,
       guzergahBitis: favBus["guzergahBitis"] as String,
       guzergahBilgisi: favBus['guzergahBilgisi'] as String,
     );
+  }
+
+  FavoriteBus toJSON() {
+    return {
+      "hatId": hatId ,
+      "hatAdi": hatAdi,
+      "guzergahBaslangic": guzergahBaslangic,
+      "guzergahBitis": guzergahBitis ,
+      "guzergahBilgisi": guzergahBilgisi,
+    };
   }
 }

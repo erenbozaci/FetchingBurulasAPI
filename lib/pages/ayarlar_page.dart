@@ -23,12 +23,12 @@ class AyarlarPageState extends State<AyarlarPage> {
             children: [
               drawSettingsButton(
                 title: "Harita Ayarları",
-                subTitle: "Latitude, Longitude",
+                subTitle: "Latitude, Longitude, Harita Tipi",
                 leading: const Icon(Icons.map_rounded),
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MapOptionsPage()));
                 },
-              )
+              ),
             ],
           ),
         )
@@ -41,15 +41,18 @@ class AyarlarPageState extends State<AyarlarPage> {
     required void Function() onTap,
     required Icon leading
 }) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(subTitle),
-      onTap: onTap,
-      leading: leading,
-      trailing: const Icon(Icons.chevron_right),
-      tileColor: Colors.black,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0), // if you need this
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5.0),
+      child: ListTile(
+        title: Text(title),
+        subtitle: Text(subTitle),
+        onTap: onTap,
+        leading: leading,
+        trailing: const Icon(Icons.chevron_right),
+        tileColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0), // if you need this
+        ),
       ),
     );
   }

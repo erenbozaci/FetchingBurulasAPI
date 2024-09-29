@@ -2,4 +2,3 @@
 - Favorite Bus Stops
 - Find Routes
 - Bus Popups
-- Bus Stop Map

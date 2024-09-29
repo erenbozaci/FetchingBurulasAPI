@@ -1,35 +1,24 @@
 ## Fetching Burulaş API
-Using and applying Burulas API in flutter. v1.2
+Using and applying Burulas API in flutter. v1.3
 
 
-## Installing
-First run `flutter create fetchingburulasapi` and paste files in `lib/` to `fetchingburulasapi/lib`
+## Installing (For Development)
+First run `flutter create fetchingburulasapi` and paste files in `fetchingburulasapi`
 Don't forget to add `<uses-permission android:name="android.permission.INTERNET"/>` to `android/app/src/main/AndroidManifest.xml`
 
-## Packages
-You need these packages: (to add you must use `flutter pub add package_name`.)
-  - path_provider
-  - provider
-  - flutter_map
-  - latlong2
-  - http
-  - flutter_map_marker_popup
-  - sliding_up_panel
-  - contained_tab_bar_view
-  - collection
-  - sqflite
-  - path
+## Packages (For Development)
+You can use this code:
+`flutter pub add equatable flutter_bloc path_provider provider flutter_map latlong2 http flutter_map_marker_popup sliding_up_panel contained_tab_bar_view flutter_launcher_icons collection sqflite path`
 
 <details>
 <summary>Screenshots</summary>
 
 ## Screenshots
-![Ana Sayfa](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/d186beee-7936-4f32-b735-0f297bed1e46)
-![Otobüs Bilgi](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/da18d585-e06c-4862-8c2b-4e0ce470a3c5)
-![Harita](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/3b1c7b13-752b-42df-9e77-c0376b259eb9)
+![Ana Sayfa](https://github.com/user-attachments/assets/2a09f54a-89d6-44b5-9846-dda22f11e2a6)
+![Otobüs Bilgi](https://github.com/user-attachments/assets/3d1428ea-ee4d-498b-bb35-34e53d1ce347)
+![Harita](https://github.com/user-attachments/assets/c9916c8c-dc38-477f-b089-a5d395c0af95)
 ![Durak Bilgi](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/e34f339d-2c84-4ed4-9dec-dd17dc915f50)
-![Favoriler](https://github.com/erenbozaci/FetchingBurulasAPI/assets/42115597/15849af3-af0b-4c10-91d6-294aedcf21a0)
-
+![Favoriler](https://github.com/user-attachments/assets/6ff22703-f500-48bd-b444-1ff323cace5d)
 
 </details>
 

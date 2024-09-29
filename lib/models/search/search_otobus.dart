@@ -1,5 +1,5 @@
 import 'package:fetchingburulasapi/models/interfaces/search_data.dart';
-import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
+import 'package:fetchingburulasapi/models/bus_route.dart';
 
 class SearchOtobus implements ISearchData {
   SearchType type;
@@ -21,12 +21,12 @@ class SearchOtobus implements ISearchData {
         hatId: json["hatNo"]
     );
   }
-  factory SearchOtobus.getBusFromOtobusGuzergah(OtobusGuzergah otobusGuzergah) {
+  factory SearchOtobus.getBusFromBusRoute(BusRoute busRoute) {
     return SearchOtobus(
       type: SearchType.OTOBUS,
-      kod: otobusGuzergah.hatAdi,
-      aciklama: otobusGuzergah.hatAdi,
-      hatId: otobusGuzergah.hatId,
+      kod: busRoute.hatAdi,
+      aciklama: busRoute.hatAdi,
+      hatId: busRoute.hatId,
     );
   }
 

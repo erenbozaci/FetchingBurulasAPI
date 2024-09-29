@@ -1,6 +1,5 @@
 import 'package:fetchingburulasapi/pages/ayarlar_page.dart';
 import 'package:fetchingburulasapi/pages/burulasapi_page.dart';
-import 'package:fetchingburulasapi/pages/favorites_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -41,11 +40,6 @@ class MainPageState extends State<MainPage> {
         menuItemText: "Otobüs ve Duraklar - BurulaşAPI",
         targetWidget: const BurulasAPIPage(),
         icon: const Icon(Icons.map_rounded)
-    ),
-    MenuPage(
-        menuItemText: "Favoriler",
-        targetWidget: const FavoritesPage(),
-        icon: const Icon(Icons.star_border_rounded)
     )
   ];
 

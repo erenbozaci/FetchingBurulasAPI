@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
+import 'package:fetchingburulasapi/models/bus_route.dart';
 import 'package:http/http.dart' as http;
 
 class BurulasDataNotFound implements Exception {}
@@ -35,18 +35,17 @@ Future<List<T>> fetchBurulasData<T>(String api, Map<String, dynamic> reqBody, T 
   if (!burulasJson.containsKey('result')) throw BurulasDataNotFound();
 
   final parsed = burulasJson["result"].cast<Map<String, dynamic>>();
-
   return parsed.map<T>((json) {
     return callback(json);
   }).toList();
 }
 
-Future<List<OtobusGuzergah>> fetchAllBuses() async {
+Future<List<BusRoute>> fetchAllBuses() async {
   final r = await http.get(Uri.parse('https://petekapi.burulas.com.tr/burulasweb/otobus/hatlar'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'});
   if (r.statusCode == 200) {
     final parsed = json.decode(r.body).cast<Map<String, dynamic>>();
-    return parsed.map<OtobusGuzergah>((json) => OtobusGuzergah.fromJson(json)).toList();
+    return parsed.map<BusRoute>((json) => BusRoute.fromJson(json)).toList();
   } else {
     throw BurulasDataNotLoaded();
   }

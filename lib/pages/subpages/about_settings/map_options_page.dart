@@ -1,4 +1,5 @@
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_modified.dart';
+import 'package:fetchingburulasapi/pages/widgets/components/form_components.dart';
+import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
 import 'package:flutter/material.dart';
 
@@ -10,14 +11,21 @@ class MapOptionsPage extends StatefulWidget {
 }
 
 class MapOptionsPageState extends State<MapOptionsPage> {
+  List dropdownList = [
+    "DEFAULT",
+    "DARK",
+  ];
+
   TextEditingController latController = TextEditingController();
   TextEditingController longController = TextEditingController();
+  TextEditingController dropdownController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     latController.dispose();
     longController.dispose();
+    dropdownController.dispose();
     super.dispose();
   }
 
@@ -33,7 +41,8 @@ class MapOptionsPageState extends State<MapOptionsPage> {
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         backgroundColor: Colors.green,
-        content: Text("Başarıyla Kaydedildi!", style: TextStyle(color: Colors.white))));
+        content: Text("Başarıyla Kaydedildi!",
+            style: TextStyle(color: Colors.white))));
   }
 
   @override
@@ -44,71 +53,59 @@ class MapOptionsPageState extends State<MapOptionsPage> {
         ),
         body: Container(
             padding: const EdgeInsets.all(15.0),
-            child: FutureBuilderModified(
+            child: FutureBuilderExtended(
                 future: HaritaAyarlar().getOptions(),
-                errorTxt: "Hata",
+                errors: FutureBuilderErrors(
+                    hasDataError: "Hata: Ayar Bulunamadı!",
+                    isEmptyError: "Hata: Ayar Bulunamadı!"),
                 outputFunc: (data) {
                   latController.text = data?["mainLat"] ?? "";
                   longController.text = data?["mainLong"] ?? "";
+                  dropdownController.text = data?["mapType"] ?? "";
 
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5.0),
-                        child: const Text("Harita Odağı",
-                            style: TextStyle(fontSize: 20)),
-                      ),
-                      const Divider(),
-                      Expanded(
-                          child: Form(
-                        key: _formKey,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(5.0),
-                                child: TextFormField(
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  controller: latController,
-                                  decoration: const InputDecoration(
-                                      hintText: 'Latitude',
-                                      labelText: 'Latitude',
-                                      border: OutlineInputBorder()),
-                                  validator: coordsControl,
+                  return Column(children: [
+                    Expanded(
+                        child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                FormComponents.formGroupTitle("Harita Odağı"),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                        child: FormComponents.formTextInput(
+                                            label: "Latitude",
+                                            controller: latController,
+                                            validator: coordsControl)),
+                                    Expanded(
+                                      child: FormComponents.formTextInput(
+                                          label: "Longitude",
+                                          controller: longController,
+                                          validator: coordsControl),
+                                    )
+                                  ],
                                 ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(5.0),
-                                child: TextFormField(
-                                  controller: longController,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  decoration: const InputDecoration(
-                                      hintText: 'Longitude',
-                                      labelText: 'Longitude',
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.always,
-                                      border: OutlineInputBorder()),
-                                  validator: coordsControl,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      )),
-                      Row(
+                                const Divider(),
+                                FormComponents.formGroupTitle("Harita Tipi"),
+                                FormComponents.formDropdown(
+                                  label: "Harita Tipi",
+                                  list: dropdownList,
+                                  controller: dropdownController,
+                                  dropDownMenuItemChild: (e) => Text(e),
+                                )
+                              ],
+                            ))),
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           FilledButton(
                               onPressed: () {
-                                if(_formKey.currentState!.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   HaritaAyarlar().updateOptions({
                                     "mainLat": latController.text,
-                                    "mainLong": longController.text
+                                    "mainLong": longController.text,
+                                    "mapType": dropdownController.text
                                   });
                                   showSnackbar(context);
                                 }
@@ -118,12 +115,11 @@ class MapOptionsPageState extends State<MapOptionsPage> {
                               onPressed: () {
                                 latController.text = "40.188215";
                                 longController.text = "29.060828";
+                                dropdownController.text = "DEFAULT";
                               },
                               child: const Text("Reset"))
-                        ],
-                      )
-                    ],
-                  );
+                        ])
+                  ]);
                 })));
   }
 }

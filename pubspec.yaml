@@ -1,7 +1,7 @@
 name: fetchingburulasapi
 description: Fetching Burulas API.
 publish_to: 'none'
-version: 1.2.0
+version: 1.3.0
 
 environment:
   sdk: '>=3.1.2 <4.0.0'
@@ -9,23 +9,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  flutter_map: ^6.1.0
+  cupertino_icons: ^1.0.8
+  flutter_map: ^7.0.2
   latlong2: ^0.9.1
-  http: ^1.2.1
-  flutter_map_marker_popup: ^6.1.2
+  http: ^1.2.2
+  flutter_map_marker_popup: ^7.0.0
   sliding_up_panel: ^2.0.0+1
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.1
   contained_tab_bar_view: ^0.8.0
-  collection: ^1.18.0
-  sqflite: ^2.3.3
+  collection: ^1.19.0
+  sqflite: ^2.3.3+2
   path: ^1.9.0
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

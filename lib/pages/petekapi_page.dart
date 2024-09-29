@@ -1,5 +1,5 @@
 import 'package:fetchingburulasapi/fetch/fetch_burulas_data.dart';
-import 'package:fetchingburulasapi/models/otobus_guzergah.dart';
+import 'package:fetchingburulasapi/models/bus_route.dart';
 import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/bus_info_page.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +11,8 @@ class PetekAPIPage extends StatefulWidget {
 }
 
 class PetekAPIPageState extends State<PetekAPIPage> {
-  List<OtobusGuzergah> items = [];
-  List<OtobusGuzergah> filteredItems = [];
+  List<BusRoute> items = [];
+  List<BusRoute> filteredItems = [];
 
   @override
   void initState() {
@@ -78,7 +78,12 @@ class PetekAPIPageState extends State<PetekAPIPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => BusInfoPage(otobus: item)),
+                  MaterialPageRoute(builder: (context) =>
+                      BusInfoPage(
+                          otobus: item,
+                          isFavorite: false,
+                      )
+                  ),
                 );
               },
             );
@@ -89,7 +94,7 @@ class PetekAPIPageState extends State<PetekAPIPage> {
     ));
   }
 
-  Future<List<OtobusGuzergah>> fetchData() async {
+  Future<List<BusRoute>> fetchData() async {
     items = await fetchAllBuses();
     return items;
   }

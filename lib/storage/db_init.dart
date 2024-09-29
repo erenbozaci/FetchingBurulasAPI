@@ -24,6 +24,7 @@ abstract class DBInit {
           "optionId": 1,
           "mainLat": "40.188215",
           "mainLong": "29.060828",
+          "mapType": "DEFAULT"
         },
       );
     }
@@ -37,14 +38,16 @@ abstract class DBInit {
         hatAdi TEXT NOT NULL,
         guzergahBaslangic TEXT NOT NULL,
         guzergahBitis TEXT NOT NULL,
-        guzergahBilgisi TEXT NOT NULL
+        guzergahBilgisi TEXT NOT NULL,
+        custom_order INTEGER NOT NULL
       )
       ''');
     await db.execute('''
       CREATE TABLE $MAP_OPT_DB_NAME (
         optionId INT PRIMARY KEY,
         mainLat TEXT NOT NULL,
-        mainLong TEXT NOT NULL
+        mainLong TEXT NOT NULL,
+        mapType TEXT NOT NULL
       )
       ''');
   }

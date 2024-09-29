@@ -19,7 +19,9 @@ class HaritaAyarlar extends IOptions {
 
   @override
   Future<AyarlarJSON> getOptions() async {
-    return (await (await db).query(MAP_OPT_DB_NAME))[0];
+    final res = (await (await db).query(MAP_OPT_DB_NAME));
+
+    return Map<String, dynamic>.from(res[0]);
   }
 
   @override
@@ -27,12 +29,7 @@ class HaritaAyarlar extends IOptions {
     (await (await db).update(MAP_OPT_DB_NAME, {
       "mainLat": json["mainLat"].toString(),
       "mainLong": json["mainLong"].toString(),
+      "mapType": json["mapType"].toString(),
     }, where: "optionId = ?", whereArgs: [1]));
   }
-
-
-}
-
-class AyarlarDB extends DBInit {
-
 }
