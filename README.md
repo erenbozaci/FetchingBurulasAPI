@@ -1,6 +1,3 @@
-# UPDATE: THIS PROJECT HAS BEEN CANCELED DUE TO CROSS-ORIGIN RESTRICTIONS.
-### I hope someday people understand the importance of open-source and that we can improve this project.
-
 ## Fetching Burulaş API
 Using and applying Burulas API in flutter. v1.3 
 
