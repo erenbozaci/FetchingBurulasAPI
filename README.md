@@ -1,14 +1,42 @@
+<<<<<<< Updated upstream
 ## Fetching Burulaş API
 Using and applying Burulas API in flutter. v1.3 
+=======
+# Fetching Burulaş API
+>>>>>>> Stashed changes
 
+Using and applying Burulaş API in Flutter. v1.3
 
-## Installing (For Development)
-First run `flutter create fetchingburulasapi` and paste files in `fetchingburulasapi`
-Don't forget to add `<uses-permission android:name="android.permission.INTERNET"/>` to `android/app/src/main/AndroidManifest.xml`
+[![License](https://img.shields.io/github/license/erenbozaci/FetchingBurulasAPI)](LICENSE)
 
-## Packages (For Development)
-You can use this code:
-`flutter pub add equatable flutter_bloc path_provider provider flutter_map latlong2 http flutter_map_marker_popup sliding_up_panel contained_tab_bar_view flutter_launcher_icons collection sqflite path`
+## Table of Contents
+- [Installation](#installation)
+- [Packages](#packages)
+- [Usage](#usage)
+- [Screenshots](#screenshots)
+
+## Installation
+
+To set up the project for development:
+
+1. Create a new Flutter project:
+    ```sh
+    flutter create fetchingburulasapi
+    ```
+
+2. Paste the files into the `fetchingburulasapi` directory.
+
+3. Add the following permission to `android/app/src/main/AndroidManifest.xml`:
+    ```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    ```
+
+## Packages
+
+The following packages are required for development:
+```sh
+flutter pub add equatable flutter_bloc path_provider provider flutter_map latlong2 http flutter_map_marker_popup sliding_up_panel contained_tab_bar_view flutter_launcher_icons collection sqflite path
+```
 
 <details>
 <summary>Screenshots</summary>
