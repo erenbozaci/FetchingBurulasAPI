@@ -1,2 +1,0 @@
-C:/Users/Ben/Desktop/repos/FetchingBurulasAPI/android/app/.cxx/Debug/395r212x/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/Ben/Desktop/repos/FetchingBurulasAPI/android/app/.cxx/Debug/395r212x/x86_64/CMakeFiles/rebuild_cache.dir
