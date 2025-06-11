@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 <<<<<<< Updated upstream
+=======
+# UPDATE: THIS PROJECT HAS BEEN CANCELED DUE TO CROSS-ORIGIN RESTRICTIONS.
+### I hope someday people understand the importance of open-source and that we can improve this project.
+
+>>>>>>> parent of bc4fd35 (I Solve It)
 ## Fetching Burulaş API
 Using and applying Burulas API in flutter. v1.3 
 =======
