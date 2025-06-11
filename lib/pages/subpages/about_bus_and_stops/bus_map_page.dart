@@ -1,21 +1,24 @@
 import 'dart:async';
-import 'dart:developer';
 
-import 'package:fetchingburulasapi/classes/map_components.dart';
-import 'package:fetchingburulasapi/fetch/burulas_api.dart';
-import 'package:fetchingburulasapi/models/search/search_otobus.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_location_marker.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/markers/bus_stop_marker.dart';
-import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_bloc.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_event.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_state.dart';
+import 'package:fetchingburulasapi/models/bus_route.dart';
+import 'package:fetchingburulasapi/pages/components/errors/otobus_error_component.dart';
+import 'package:fetchingburulasapi/pages/components/future_builder_extended.dart';
+import 'package:fetchingburulasapi/pages/components/map_components.dart';
+import 'package:fetchingburulasapi/pages/components/markers/bus_location_marker.dart';
+import 'package:fetchingburulasapi/pages/components/markers/bus_stop_marker.dart';
+import 'package:fetchingburulasapi/api/burulas_api.dart';
+import 'package:fetchingburulasapi/utils/cache_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:latlong2/latlong.dart';
 
 class BusMapPage extends StatefulWidget {
-  final SearchOtobus otobus;
+  final BusRoute otobus;
 
   const BusMapPage({super.key, required this.otobus});
 
@@ -27,12 +30,15 @@ class BusMapPageState extends State<BusMapPage> {
   late final MapController _mapController;
   late Timer _timer;
 
-  final StreamController<BusLocationList> _streamController = StreamController.broadcast();
+  final StreamController<BusLocationList> _streamController =
+      StreamController.broadcast();
 
   @override
   void initState() {
     _mapController = MapController();
-    _getBusCoordinatesPeriodicly(secs: 5);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getBusCoordinatesPeriodicly(secs: 5);
+    });
     super.initState();
   }
 
@@ -47,7 +53,7 @@ class BusMapPageState extends State<BusMapPage> {
   void _getBusCoordinatesPeriodicly({required int secs}) {
     _timer = periodicTimer(Duration(seconds: secs), (timer) {
       _streamController.addStream(
-          Stream.fromFuture(BurulasApi.fetchGetBusLoc(widget.otobus.kod)));
+          Stream.fromFuture(BurulasApi.getBusMapData(widget.otobus.hatAdi)));
     }, onStart: true);
   }
 
@@ -64,17 +70,64 @@ class BusMapPageState extends State<BusMapPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.otobus.kod),
+          title: Text(widget.otobus.hatAdi),
         ),
         body: FlutterMap(
             mapController: _mapController,
             options: MapComponents.getMapOptions(),
             children: [
               MapComponents.getTileLayer(),
-              ...(_drawMapInfoAboutBus()),
+              BlocBuilder<BusDirectionBloc, BusDirectionState>(
+                  builder: (context, state) {
+                if (state.status == "error") {
+                  return OtobusErrorComponent(
+                      errorText: "Otobüs durakları alınırken hata oluştu.");
+                } else {
+                  return Stack(
+                    children: [
+                      ...(_drawMapInfoAboutBus(state.direction)),
+                      Positioned(
+                        left: 5.0,
+                        top: 5.0,
+                        child: Container(
+                            margin: const EdgeInsets.all(5.0),
+                            alignment: Alignment.topCenter,
+                            child: InkWell(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5.0)),
+                              onTap: () {
+                                context.read<BusDirectionBloc>().add(
+                                    BusDirectionFetch(
+                                        busId: widget.otobus.hatId.toString(),
+                                        direction: state.direction == "G"
+                                            ? "D"
+                                            : "G"));
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(15.0),
+                                decoration: const BoxDecoration(
+                                    color: Colors.black45,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5.0))),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.repeat_rounded),
+                                    const SizedBox(width: 15.0),
+                                    Text("KALKIŞ: ${state.kalkisDurak}",
+                                        style: const TextStyle(
+                                          fontSize: 16.0,
+                                        ))
+                                  ],
+                                ),
+                              ),
+                            )),
+                      ),
+                    ],
+                  );
+                }
+              }),
               RichAttributionWidget(
                 attributions: [
                   TextSourceAttribution('OpenStreetMap contributors'),
@@ -83,82 +136,52 @@ class BusMapPageState extends State<BusMapPage> {
             ]));
   }
 
-  List<Widget> _drawMapInfoAboutBus() {
+  List<Widget> _drawMapInfoAboutBus(String direction) {
+    List<BusStopMarker> directionBusStops = CacheManager.directions.firstWhere((e) => e.direction == direction).busStops.map((e) => BusStopMarker(busStop: e)).toList();
     return [
       // BusRoute
       FutureBuilderExtended<RouteCoordinatesList>(
           future:
-              BurulasApi.fetchRouteCoordinates(widget.otobus.hatId.toString()),
+              BurulasApi.getBusRouteCoordinates(widget.otobus.hatId.toString()),
           errors: FutureBuilderErrors(
               hasDataError: "Otobüs rotası alınırken hata oluştu."),
           outputFunc: (busRouteData) {
-            final List<LatLng> gelisRoute = [];
-            final List<LatLng> donusRoute = [];
-
-            for (var point in busRouteData!) {
-              // G = gidis | R = ring | D = donus
-              if (point.routeDirection == 'G' || point.routeDirection == 'R') {
-                gelisRoute.add(LatLng(point.latitude, point.longitude));
-              } else if (point.routeDirection == 'D') {
-                donusRoute.add(LatLng(point.latitude, point.longitude));
-              }
-            }
+            final List<LatLng> routePoints = busRouteData!
+                .where((a) => a.routeDirection == direction)
+                .map((a) => a.toLatLng())
+                .toList();
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _mapController.fitCamera(CameraFit.coordinates(
-                  coordinates: busRouteData
-                      .map((busRoutePoint) => busRoutePoint.toLatLng())
-                      .toList(),
-                  padding: const EdgeInsets.all(
-                      10.0))); // Call fitBounds when the frame is ready
+                  coordinates: routePoints,
+                  padding: const EdgeInsets.all(10.0)));
             });
 
             return PolylineLayer(
               polylines: [
                 Polyline(
-                    points: gelisRoute,
+                    points: routePoints,
                     strokeWidth: 6,
-                    color: Colors.redAccent),
-                Polyline(
-                    points: donusRoute,
-                    strokeWidth: 6,
-                    color: Colors.blueAccent)
+                    colorsStop: const [0.0, 1.0],
+
+                    pattern: StrokePattern.dashed(segments: [5, 5]),
+                    color: direction == "D"
+                        ? Colors.blueAccent
+                        : Colors.redAccent),
               ],
             );
           }),
-      // BusStops
-      FutureBuilderExtended<BusStopList>(
-          future: BurulasApi.fetchBusStops(widget.otobus.hatId.toString()),
-          errors: FutureBuilderErrors(
-              hasDataError: "Otobüs durakları alınırken hata oluştu."),
-          outputFunc: (busStops) {
-            inspect(_mapController);
-
-            return PopupMarkerLayer(
-                options: PopupMarkerLayerOptions(
-              markers: busStops!
-                  .map((busStop) => BusStopMarker(busStop: busStop))
-                  .toList(),
-              popupDisplayOptions: PopupDisplayOptions(
-                builder: (_, Marker marker) {
-                  if (marker is BusStopMarker) {
-                    return BusStopMarkerPopup(busStop: marker.busStop);
-                  }
-                  return const Card(child: Text('Hata'));
-                },
-              ),
-            ));
-          }),
       // Buses
       StreamBuilder<BusLocationList>(
-          stream: _streamController.stream,
+          stream: _streamController.stream.distinct(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
+              return OtobusErrorComponent(
+                  errorText: "Error: ${snapshot.error}");
             } else if (!snapshot.hasData || snapshot.data!.toString().isEmpty) {
-              return OtobusErrorWidget(
+              return OtobusErrorComponent(
                   errorText: "Otobüs lokasyonları alınırken hata oluştu.");
             } else {
               final busLocs = snapshot.data!;
@@ -168,9 +191,18 @@ class BusMapPageState extends State<BusMapPage> {
                     .toList(),
               );
             }
-          })
+          }),
+      PopupMarkerLayer(
+        options: PopupMarkerLayerOptions(
+            markers: directionBusStops,
+            popupDisplayOptions: PopupDisplayOptions(
+                builder: (BuildContext context, Marker marker) {
+              if (marker is BusStopMarker) {
+                return BusStopMarkerPopup(busStop: marker.busStop);
+              }
+              return const SizedBox.shrink();
+            })),
+      )
     ];
   }
-
-
 }

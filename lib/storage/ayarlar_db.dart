@@ -10,7 +10,6 @@ abstract class IOptions extends DBInit {
 }
 
 class HaritaAyarlar extends IOptions {
-
   static AyarlarJSON? haritaAyarlari;
 
   static void init() async {
@@ -29,7 +28,6 @@ class HaritaAyarlar extends IOptions {
     (await (await db).update(MAP_OPT_DB_NAME, {
       "mainLat": json["mainLat"].toString(),
       "mainLong": json["mainLong"].toString(),
-      "mapType": json["mapType"].toString(),
     }, where: "optionId = ?", whereArgs: [1]));
   }
 }

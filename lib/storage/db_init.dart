@@ -47,7 +47,6 @@ abstract class DBInit {
         optionId INT PRIMARY KEY,
         mainLat TEXT NOT NULL,
         mainLong TEXT NOT NULL,
-        mapType TEXT NOT NULL
       )
       ''');
   }

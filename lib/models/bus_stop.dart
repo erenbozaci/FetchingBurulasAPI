@@ -1,5 +1,5 @@
 import 'package:fetchingburulasapi/models/abstracts/route_data.dart';
-import 'package:fetchingburulasapi/models/search/search_durak.dart';
+import 'package:fetchingburulasapi/models/search/bus_stop_search.dart';
 
 class BusStop extends RouteData {
   final int stopId;
@@ -21,7 +21,7 @@ class BusStop extends RouteData {
     );
   }
 
-  factory BusStop.fromSearchDurak(SearchDurak durak) {
+  factory BusStop.fromSearchDurak(BusStopSearch durak) {
     return BusStop(
         stopId: durak.stationId,
         stopName: durak.stationName,

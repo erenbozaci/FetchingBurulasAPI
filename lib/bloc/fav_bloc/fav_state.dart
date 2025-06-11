@@ -14,11 +14,11 @@ extension FavStatusBool on FavStatus {
 }
 
 class FavState extends Equatable {
-  final FavoritesList? favList;
+  final FavoritesList favList;
   final FavoriteBus? favBus;
   final FavStatus status;
 
-  const FavState({ this.favBus, this.favList, this.status = FavStatus.init});
+  const FavState({ this.favBus, this.favList = const [], this.status = FavStatus.init});
 
   @override
   List<Object?> get props => [favList, favBus, status];

@@ -1,10 +1,10 @@
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_bloc.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_state.dart';
 import 'package:fetchingburulasapi/models/bus_route.dart';
+import 'package:fetchingburulasapi/pages/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/bus_info_page.dart';
 import 'package:fetchingburulasapi/pages/favorites_page.dart';
-import 'package:fetchingburulasapi/pages/widgets/bus_search_widget.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
+import 'package:fetchingburulasapi/pages/subpages/about_search/search_page.dart';
 import 'package:fetchingburulasapi/storage/favorites_db.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +27,8 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
             child: InkWell(
               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
               onTap: () {
-                showSearch(context: context, delegate: BusSearchComponent());
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const SearchPage()));
               },
               child: Container(
                 padding: const EdgeInsets.all(15.0),
@@ -45,7 +46,8 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
                   ],
                 ),
               ),
-            )),
+            )
+        ),
         Row(
           children: [
             Flexible(
@@ -54,18 +56,27 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0), // if you need this
                 side: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: const Text(
-                      "Favoriler",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10.0),
+                        child: const Text(
+                          "Favoriler",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      IconButton(onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const FavoritesPage()));
+                      }, icon: Icon(Icons.arrow_forward_rounded), tooltip: "Hepsini Gör")
+                    ],
                   ),
                   BlocBuilder<FavBloc, FavState>(
                     buildWhen: (previous, current) => current.status.isSuccess,
@@ -73,19 +84,6 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
                       return drawFavBusses(state);
                     },
                   ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const FavoritesPage()));
-                    },
-                    child: const ListTile(
-                      title: Center(
-                          child: Text(
-                        "Hepsini Gör...",
-                        style: TextStyle(fontSize: 12),
-                      )),
-                    ),
-                  )
                 ],
               ),
             )),
@@ -113,9 +111,7 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
                   title: Text(favBus["hatAdi"],
                       style: const TextStyle(fontSize: 14)),
                   subtitle: Text(
-                    favBus["guzergahBaslangic"] +
-                        " - " +
-                        favBus["guzergahBitis"],
+                    '${favBus["guzergahBaslangic"]} - ${favBus["guzergahBitis"]}',
                     style: const TextStyle(fontSize: 10),
                   ),
                   leading: const Icon(Icons.directions_bus_rounded),
@@ -123,7 +119,6 @@ class BurulasAPIPageState extends State<BurulasAPIPage> {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => BusInfoPage(
                               otobus: BusRoute.fromFavBus(favBus),
-                              isFavorite: true,
                             )
                     ));
                   },

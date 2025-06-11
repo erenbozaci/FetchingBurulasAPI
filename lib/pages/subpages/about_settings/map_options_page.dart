@@ -1,5 +1,5 @@
-import 'package:fetchingburulasapi/pages/widgets/components/form_components.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
+import 'package:fetchingburulasapi/pages/components/form_components.dart';
+import 'package:fetchingburulasapi/pages/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
 import 'package:flutter/material.dart';
 

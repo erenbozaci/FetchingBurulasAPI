@@ -37,17 +37,17 @@ class FavoritesDB extends DBInit {
     }
   }
 
-  Future<void> deleteFavorite(BusRoute busRoute) async {
+  Future<void> deleteFavorite(int hatId) async {
     try {
-      (await db).delete(FAV_BUS_DB_NAME, where: 'hatId = ?', whereArgs: [busRoute.hatId]);
+      (await db).delete(FAV_BUS_DB_NAME, where: 'hatId = ?', whereArgs: [hatId]);
     } catch (e) {
       throw Exception("RemoveFavorite Error: $e");
     }
   }
 
-  Future<bool> isFavorite(BusRoute busRoute) async {
+  Future<bool> isFavorite(int hatId) async {
     try {
-      return (await (await db).query(FAV_BUS_DB_NAME, where: 'hatId = ?', whereArgs: [busRoute.hatId])).isNotEmpty;
+      return (await (await db).query(FAV_BUS_DB_NAME, where: 'hatId = ?', whereArgs: [hatId])).isNotEmpty;
     } catch (e) {
       throw Exception("IsFavorite Error: $e");
     }

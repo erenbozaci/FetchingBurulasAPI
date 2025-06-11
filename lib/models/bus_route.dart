@@ -1,3 +1,4 @@
+import 'package:fetchingburulasapi/api/burulas_api.dart';
 import 'package:fetchingburulasapi/storage/favorites_db.dart';
 
 class BusCode {
@@ -11,13 +12,15 @@ class BusRoute {
   final String guzergahBaslangic;
   final String guzergahBitis;
   final String guzergahBilgisi;
+  final BusStopList busStopList;
 
   BusRoute ({
     required this.hatId,
     required this.hatAdi,
     required this.guzergahBaslangic,
     required this.guzergahBitis,
-    required this.guzergahBilgisi
+    required this.guzergahBilgisi,
+    this.busStopList = const [],
   });
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {

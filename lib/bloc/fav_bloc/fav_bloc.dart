@@ -31,7 +31,7 @@ class FavBloc extends Bloc<FavEvent, FavState> {
   void _mapFavRemoveEventState(FavRemove event, Emitter<FavState> emit) async {
     emit(state.copyWith(status: FavStatus.loading));
     try {
-      await favDB.deleteFavorite(BusRoute.fromFavBus(event.favBus));
+      await favDB.deleteFavorite(BusRoute.fromFavBus(event.favBus).hatId);
       emit(
         state.copyWith(
             status: FavStatus.success,

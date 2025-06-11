@@ -1,18 +1,22 @@
 import 'dart:async';
 
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_bloc.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_event.dart';
+import 'package:fetchingburulasapi/bloc/bus_direction_bloc/bus_direction_state.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_bloc.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_event.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_state.dart';
-import 'package:fetchingburulasapi/classes/time_group.dart';
-import 'package:fetchingburulasapi/fetch/burulas_api.dart';
+import 'package:fetchingburulasapi/api/burulas_api.dart';
 import 'package:fetchingburulasapi/models/bus_route.dart';
 import 'package:fetchingburulasapi/models/schedule_by_stop.dart';
-import 'package:fetchingburulasapi/models/search/search_otobus.dart';
+import 'package:fetchingburulasapi/models/search/bus_search.dart';
+import 'package:fetchingburulasapi/pages/components/errors/otobus_error_component.dart';
+import 'package:fetchingburulasapi/pages/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/bus_map_page.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
-import 'package:fetchingburulasapi/storage/ayarlar_db.dart';
+import 'package:fetchingburulasapi/storage/favorites_db.dart';
+import 'package:fetchingburulasapi/utils/cache_manager.dart';
+import 'package:fetchingburulasapi/utils/time_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,48 +31,25 @@ class NearestTime {
 
 class BusInfoPage extends StatefulWidget {
   final BusRoute otobus;
-  final bool isFavorite;
 
-  const BusInfoPage(
-      {super.key, required this.otobus, required this.isFavorite});
+  const BusInfoPage({super.key, required this.otobus});
 
   @override
   State<BusInfoPage> createState() => BusInfoPageState();
 }
 
-class BusInfoPageState extends State<BusInfoPage>
-    with SingleTickerProviderStateMixin {
+class BusInfoPageState extends State<BusInfoPage> with SingleTickerProviderStateMixin {
   late TimeGroup timeGroup;
 
   List<String> days = TimeGroup.days;
   BusTimesOfWeek times = {};
   List<String> directions = ["G", "D"];
-  String direction = "G";
-
-  final StreamController _streamController = StreamController.broadcast();
-
-  @override
-  void initState() {
-    getDirection();
-    super.initState();
-  }
-
-  void getDirection() async {
-    try {
-      final bus =
-          await BurulasApi.fetchBusStops(widget.otobus.hatId.toString());
-      bool isRing = bus.map((b) => b.routeDirection).contains("R");
-      setDirection(!isRing ? direction : "R");
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
 
   Future<BusTimesOfWeek> seperateArrayToWeekdays(
       String direction, String hatId) async {
     try {
       BusTimesOfWeek tempTimes = {};
-      final data = await fetchBusTimes(hatId);
+      final data = await fetchBusTimes(direction, hatId);
       for (final timeData in data) {
         tempTimes[days[timeData.routeDay - 1]] =
             tempTimes[days[timeData.routeDay - 1]] ?? [];
@@ -80,72 +61,86 @@ class BusInfoPageState extends State<BusInfoPage>
     }
   }
 
-  void setDirection(String d) {
-    setState(() {
-      direction = d;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final otobusS = widget.otobus;
+    var busStops = otobusS.busStopList;
+    bool isRing = busStops.map((b) => b.routeDirection).contains("R");
+    context.read<BusDirectionBloc>().add(BusDirectionFetch(busId: widget.otobus.hatId.toString(), direction: isRing ? "R" : "G"));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(otobusS.hatAdi),
         actions: [
-          BlocBuilder<FavBloc, FavState>(builder: (context, state) {
-            final a = state.favList;
-            final isFav = (a != null)
-                ? a
-                    .where((e) => e["hatId"] == otobusS.hatId)
-                    .toList()
-                    .isNotEmpty
-                : widget.isFavorite;
-            return IconButton(
-                onPressed: () {
-                  if (isFav) {
-                    context
-                        .read<FavBloc>()
-                        .add(FavRemove(favBus: otobusS.toJSON()));
-                  } else {
-                    context
-                        .read<FavBloc>()
-                        .add(FavAdd(favBus: otobusS.toJSON()));
-                  }
-                },
-                icon: isFav
-                    ? const Icon(Icons.star_rounded)
-                    : const Icon(Icons.star_outline_rounded));
-          })
+          StreamBuilder(
+              stream: Stream.fromFuture(FavoritesDB.instance.isFavorite(otobusS.hatId)),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Icon(Icons.error);
+                } else if (snapshot.hasData) {
+                  return BlocBuilder<FavBloc, FavState>(builder: (context, state) {
+                    bool isFav = state.favList.isNotEmpty ? state.favList.any((e) => e["hatId"] == otobusS.hatId) : snapshot.data!;
+                    return IconButton(
+                        onPressed: () {
+                          context.read<FavBloc>().add(isFav
+                              ? FavRemove(favBus: otobusS.toJSON())
+                              : FavAdd(favBus: otobusS.toJSON()));
+                        },
+                        icon: isFav
+                            ? const Icon(Icons.star_rounded)
+                            : const Icon(Icons.star_outline_rounded));
+
+                  });
+                } else {
+                  return const SizedBox();
+                }
+              }
+          )
         ],
       ),
       body: Column(children: [
         drawPrices(otobusS.hatAdi),
-        drawHatSaatHeader(),
-        drawTimes(),
+        BlocBuilder<BusDirectionBloc, BusDirectionState>(
+            builder: (context, state) {
+          if (state.status == "error") {
+            return OtobusErrorComponent(errorText: "Error: ${state.status}");
+          } else if (state.status == "success" || state.status == "loading") {
+            final direction = state.direction;
+            return Expanded(
+                child: Column(children: [
+                  drawRouteChange(direction, state),
+                  drawTimes(direction, otobusS.hatId.toString()),
+                ])
+            );
+          } else {
+            return const OtobusErrorComponent(
+                errorText: "Otobüs bilgisi bulunamadı.");
+          }
+        })
       ]),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.map),
-          onPressed: () {
+          onPressed: () async {
             Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => BusMapPage(
-                    otobus: SearchOtobus.getBusFromBusRoute(otobusS),
+                    otobus: otobusS,
                   ),
                 ));
           }),
     );
   }
 
-  Widget drawHatSaatHeader() {
+  Widget drawRouteChange(String direction, BusDirectionState state) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          drawHatDegistir(),
+          drawHatDegistir(direction, state),
           Text(
             "*Resmi tatil günleri, Pazar sefer saatleri ile aynıdır.",
             style: TextStyle(color: Theme.of(context).dividerColor),
@@ -156,11 +151,11 @@ class BusInfoPageState extends State<BusInfoPage>
   }
 
   Widget drawPrices(String hatAdi) {
-    return FutureBuilderExtended<RoutePriceList>(
-        future: BurulasApi.fetchRoutePrice(hatAdi),
+    return FutureBuilderExtended(
+        future: BurulasApi.getRoutePrices(hatAdi),
         errors: FutureBuilderErrors(
-            hasDataError: "Ücret bilgisi bulunamadı.",
-            isEmptyError: "Ücret bilgisi bulunamadı."),
+            hasDataError: "Ücret Bilgisi Bulunamadı.",
+            isEmptyError: "Ücret Bilgisi Bulunamadı."),
         outputFunc: (data) {
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -185,27 +180,18 @@ class BusInfoPageState extends State<BusInfoPage>
         });
   }
 
-  Widget drawTimes() {
-    return StreamBuilder<BusTimesOfWeek>(
-      stream: Stream.fromFuture(
-          seperateArrayToWeekdays(direction, widget.otobus.hatId.toString())),
-      builder: (ctx, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return OtobusErrorWidget(errorText: "Error: ${snapshot.error}");
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const OtobusErrorWidget(
-              errorText: "Otobüs bilgisi bulunamadı.");
-        } else {
+  Widget drawTimes(String direction, String hatId) {
+    return FutureBuilderExtended(
+        future: seperateArrayToWeekdays(direction, hatId),
+        errors: FutureBuilderErrors(
+            hasDataError: "Otobüs Zaman Bilgisi Bulunamadı."),
+        outputFunc: (data) {
           return Expanded(
               child: Container(
             padding: const EdgeInsets.all(5.0),
-            child: drawArray(snapshot.data!),
+            child: drawArray(data!),
           ));
-        }
-      }, //s
-    );
+        });
   }
 
   Widget drawArray(BusTimesOfWeek times) {
@@ -218,87 +204,111 @@ class BusInfoPageState extends State<BusInfoPage>
   }
 
   List<Widget> drawTabBarView(BusTimesOfWeek times) {
+    final borderColor = const Color.fromARGB(255, 90, 92, 106); // Medium Gray
+    final hourBgColor = const Color.fromARGB(255, 52, 54, 65); // Darker Gray
+    final minutesBgColor =
+        const Color.fromARGB(255, 35, 36, 42); // Very Dark Gray
+
     final tg = TimeGroup(times: times).groupTimesbyHour();
 
-    List<Widget> hours = [];
-    List<Widget> timesWidget = [];
-    for (var weekDay in days) {
-      hours = [];
-      tg[weekDay]?.forEach((hour, timeItemList) {
-        final timeItemListWidgets = timeItemList
-            .map(
-              (e) => Container(
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                    color: e.isNearest ? Colors.deepPurple : Colors.transparent,
-                  ),
-                  child: Text(e.stringifyMins(),
-                      style: const TextStyle(color: Colors.white))),
-            )
-            .toList();
+    return days.map((weekDay) {
+      final hours = tg[weekDay]?.entries.map((entry) {
+            final hour = entry.key;
+            final timeItemList = entry.value;
 
-        final timeListWidget = Row(children: timeItemListWidgets);
-
-        final hourRow = Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(5.0),
-              child: Text(hour >= 10 ? hour.toString() : "0$hour",
-                  style: const TextStyle(
-                    fontSize: 20,
-                  )),
-            ),
-            Expanded(
-                child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Container(
-                      margin: const EdgeInsets.all(2.5),
-                      padding: const EdgeInsets.all(4.0),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(9.0)),
-                        color: Colors.black,
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 5.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: minutesBgColor,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildHourContainer(hour, borderColor, hourBgColor),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Container(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: timeItemList
+                              .map((e) => _buildTimeItem(e))
+                              .toList(),
+                        ),
                       ),
-                      child: timeListWidget,
-                    )))
-          ],
-        );
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList() ??
+          [];
 
-        hours.add(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2.5),
-          child: hourRow,
-        ));
-      });
-      timesWidget.add(Container(
-          margin: const EdgeInsets.symmetric(vertical: 5.0),
-          decoration: BoxDecoration(
-              border: Border.symmetric(
-                  vertical: BorderSide(
-                      width: 0.5, color: Theme.of(context).focusColor))),
-          child: ListView(children: hours)));
-    }
-    return timesWidget;
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: ListView(shrinkWrap: true, children: hours),
+      );
+    }).toList();
   }
 
-  Widget drawHatDegistir() {
+  Widget _buildHourContainer(int hour, Color borderColor, Color hourBgColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+      decoration: BoxDecoration(
+        color: hourBgColor,
+        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(color: Theme.of(context).colorScheme.shadow),
+        ],
+      ),
+      child: Text(
+        hour >= 10 ? hour.toString() : "0$hour",
+        style: const TextStyle(fontSize: 20),
+      ),
+    );
+  }
+
+  Widget _buildTimeItem(TimeItem e) {
+    return Container(
+      padding: const EdgeInsets.all(5.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5.0),
+        color: e.isNearest ? Colors.deepPurple : Colors.transparent,
+      ),
+      child: Text(
+        e.stringifyMins(),
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget drawHatDegistir(String direction, BusDirectionState state) {
+    const snackBar = SnackBar(
+      backgroundColor: Colors.red,
+      content: Text(
+        "Bu hat bir ring hattıdır. Bu nedenle değiştirme yapılamaz!",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
     return Row(
       children: [
         Flexible(
-            child: Text(
-                "KALKIŞ: ${(direction == "R" || direction == "G") ? widget.otobus.guzergahBaslangic : widget.otobus.guzergahBitis}")),
+            child: Text("KALKIŞ: ${state.kalkisDurak}")),
         IconButton(
             onPressed: () {
-              const snackBar = SnackBar(
-                content: Text(
-                    "Bu hat bir ring hattıdır. Bu nedenle değiştirme yapılamaz!"),
-              );
-              if (direction != "R" && direction == "G") {
-                setDirection("D");
-              } else if (direction != "R" && direction == "D") {
-                setDirection("G");
+              if (direction != "R") {
+                context.read<BusDirectionBloc>().add(BusDirectionFetch(
+                    busId: widget.otobus.hatId.toString(),
+                    direction: direction == "G" ? "D" : "G")
+                );
               } else if (direction == "R") {
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                return;
               }
             },
             icon: const Icon(Icons.change_circle_outlined)),
@@ -306,7 +316,8 @@ class BusInfoPageState extends State<BusInfoPage>
     );
   }
 
-  Future<List<ScheduleByStop>> fetchBusTimes(String hatId) async {
-    return BurulasApi.fetchBusTimes(direction, hatId);
+  Future<List<ScheduleByStop>> fetchBusTimes(
+      String direction, String hatId) async {
+    return BurulasApi.getBusTimes(direction, hatId);
   }
 }

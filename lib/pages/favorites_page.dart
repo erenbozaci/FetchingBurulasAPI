@@ -2,9 +2,8 @@ import 'package:fetchingburulasapi/bloc/fav_bloc/fav_bloc.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_event.dart';
 import 'package:fetchingburulasapi/bloc/fav_bloc/fav_state.dart';
 import 'package:fetchingburulasapi/models/bus_route.dart';
+import 'package:fetchingburulasapi/pages/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/pages/subpages/about_bus_and_stops/bus_info_page.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/errors/otobus_error_widget.dart';
-import 'package:fetchingburulasapi/pages/widgets/components/future_builder_extended.dart';
 import 'package:fetchingburulasapi/storage/favorites_db.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -105,10 +104,8 @@ class FavoritesPageState extends State<FavoritesPage> {
             ),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => BusInfoPage(
-                        otobus: BusRoute.fromFavBus(favBus),
-                        isFavorite: true,
-                      )));
+                  builder: (_) =>
+                      BusInfoPage(otobus: BusRoute.fromFavBus(favBus))));
             },
           );
         },
